@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .welcome{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* width inputs */
+        input[type=text], input[type=password] {
+            display: block;
+            width: 50%;
+            margin: 0 auto;
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+        }
+
+        label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: black;
+            border: 1px solid black;
+            border-radius: 5px;
+            margin: 10px auto 0;
+            width: 10%;
+        }
+
+        /* Center the avatar image inside this container */
+        .imgcontainer {
+        text-align: center;
+        margin: 24px 0 12px 0;
+        }
+
+        /* Avatar image */
+        img.avatar {
+        width: 20%;
+        }
+
+        /* Add padding to containers */
+        .container {
+        padding: 10px;
+        }
+
+        /* The "Forgot password" text */
+        .others {
+            display: flex;
+            width: 50%;
+            margin: 0 auto;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        span.psw,
+        .remember {
+            width: auto;
+            margin: 0;
+        }
+
+        .create {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+     
+
+    </style>
+</head>
+<body>
+    <h1 class="welcome">Welcome to Ultrarun Requester!</h1>
+    
+    <form action="/action_page.php">
+        <div class="imgcontainer">
+            <img src="{{ url_for('static', filename='images/avatar.png') }}" alt="Avatar" class="avatar">
+        </div>
+
+        <div class="container">
+            <label for="uname"> <b>Username:</b></label><br>
+            <input type="text" placeholder="Enter Username" name="uname" required><br>
+        
+            <label for="psw"><b>Password:</b></label><br>
+            <input type="password" placeholder="Enter Password" name="psw" required><br>
+
+            
+            <div class="others">
+                <span class="psw">Forgot <a href="#">password?</a></span>
+                <label class="remember">
+                <input type="checkbox" checked="checked" name="remember">
+                Remember me
+                </label>
+
+            </div>
+        
+            <a class="login" href="/home">Login</a>
+            <span class="create">Do you not have an account yet? <a href="/new-account"> New account </a></span>
+            
+        </div>
+    </form>
+</body>
+</html>

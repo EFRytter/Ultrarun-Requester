@@ -1,11 +1,38 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <style>
+        .title {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .tops {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px
+        }
+
+        .tops a {
+            text-decoration: none;
+            color: black;
+            
+            border: 1px solid black ;
+            border-radius: 30px;
+            padding: 10px;
+        }
+
+    </style>
+</head>
 <body>
-    <h3>Enter Your Name</h3>
-    <form method="post">
-        <input type="text" name="username" required>
-        <br><br>
-        <input type="submit" value="Submit">
-    </form>
+    <p class="title"> 100 Miles Requester </p>
+    <div class="tops">
+        <a href="/food">Food</a>
+        <a href="/liquids">Liquids</a>
+        <a href="/hygiene">Hygiene</a>
+    </div>
 </body>
 </html>

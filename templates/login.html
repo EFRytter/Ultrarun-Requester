@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="welcome">Welcome to Ultrarun Requester!</h1>
+
+<form action="/" method="POST">
+    <div class="imgcontainer">
+        <img src="{{ url_for('static', filename='images/avatar.png') }}" alt="Avatar" class="avatar">
+    </div>
+
+    <div class="container">
+        <label for="uname"> <b>Username:</b></label><br>
+        <input type="text" placeholder="Enter Username" name="uname" required><br>
+    
+        <label for="psw"><b>Password:</b></label><br>
+        <input type="password" placeholder="Enter Password" name="psw" required><br>
+
+        <div class="others">
+            <span class="psw">Forgot <a href="#">password?</a></span>
+            <label class="remember">
+            <input type="checkbox" checked="checked" name="remember">
+            Remember me
+            </label>
+        </div>
+    
+        <button class="login" type="submit">Login</button>
+        <span class="create">Do you not have an account yet? <a href="/new-account"> New account </a></span>
+        
+    </div>
+</form>
+{% endblock %}
