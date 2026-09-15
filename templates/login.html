@@ -16,14 +16,13 @@
 
         <div class="others">
             <span class="psw">Forgot <a href="#">password?</a></span>
-            <label class="remember">
-            <input type="checkbox" checked="checked" name="remember">
+            <input style="width: auto; margin: 0;" type="checkbox" checked="checked" name="remember">
             Remember me
             </label>
         </div>
     
         <button class="login" type="submit">Login</button>
-        <span class="create">Do you not have an account yet? <a href="/new-account"> New account </a></span>
+        <span class="create">Do you not have an account yet? <a href="{{ url_for('new_account') }}"> New account </a></span>
         
     </div>
 </form>

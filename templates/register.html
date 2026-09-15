@@ -1,36 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
+{% extends "base.html" %}
+{% block content %}
 
-        .welcome{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-     
+<a class="tilbage" href="{{ url_for('login') }}">&larr;</a>
+<h1 class="welcome">Create a new account</h1>
 
-    </style>
-</head>
-<body>
-    <h1 class="welcome">Create a new account</h1>
+<form action="/register" method="POST">
+    <div class="container">
+        <label for="uname"> <b>Username:</b></label><br>
+        <input type="text" placeholder="Enter Username" name="uname" required><br>
     
-    <form action="/register">
-        <div class="container">
-            <label for="teamname"> <b>Team name:</b></label><br>
-            <input type="text" placeholder="Enter your team name" name="teamname" required><br>
-        
-            <label for="uname"> <b>Username:</b></label><br>
-            <input type="text" placeholder="Enter Username" name="uname" required><br>
-        
-            <label for="psw"><b>Password:</b></label><br>
-            <input type="password" placeholder="Enter Password" name="psw" required><br>
+        <label for="psw"><b>Password:</b></label><br>
+        <input type="password" placeholder="Enter Password" name="psw" required><br>
 
-            <label for="psw2"><b>Confirm password:</b></label><br>
-            <input type="password" placeholder="Confirm Password" name="psw2" required><br>
+        <label for="psw2"><b>Confirm password:</b></label><br>
+        <input type="password" placeholder="Confirm Password" name="psw2" required><br>
 
-        </div>
-    </form>
-
-</body>
-</html>
+        <button class="Create" type="submit">Create account</button>
+    </div>
+</form>
+{% endblock %}

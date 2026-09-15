@@ -1,0 +1,57 @@
+
+
+/* Center the avatar image inside this container */
+.imgcontainer {
+text-align: center;
+margin: 24px 0 12px 0;
+}
+
+/* Avatar image */
+img.avatar {
+width: 20%;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+form {
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+input[type="text"],
+input[type="password"] {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+}
+
+button {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px;
+    border: 0;
+    border-radius: 5px;
+    color: white;
+    background-color: rgb(79, 162, 79);
+}
+
+.tilbage {
+    display: flex;
+    width: 4%;
+    text-decoration: None;
+    color: white;
+    border: 0;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 5px;
+    background-color: rgb(79, 162, 79)
+}
