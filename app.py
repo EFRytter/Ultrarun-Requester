@@ -36,6 +36,10 @@ class Station(db.Model):
     distance = db.Column(db.Float, nullable=False)
     station_number = db.Column(db.Integer, nullable=False)
     run_id = db.Column(db.Integer, db.ForeignKey('run.id'), nullable=False)
+    
+    @property
+    def event_run_id(self):
+        return self.run_id
 
 # page to create a new account
 @app.route('/register', methods=['GET', 'POST'])
@@ -128,6 +132,30 @@ def add_event():
     new_run = Run(event_name=event_name, date=event_date, distance=float(distance) if distance else None, team_id=team_id)
     db.session.add(new_run)
     db.session.commit()
+    
+    # Save stations submitted in the add-event form. The form uses
+    # repeated fields named 'station_name' and 'station_distance'.
+    station_names = request.form.getlist('station_name')
+    station_distances = request.form.getlist('station_distance')
+    
+    for idx, name in enumerate(station_names, start=1):
+        if not name:
+            continue
+        # get matching distance if provided
+        dist_val = 0.0
+        try:
+            if idx-1 < len(station_distances):
+                raw = station_distances[idx-1]
+                dist_val = float(raw) if raw else 0.0
+        except ValueError:
+            dist_val = 0.0
+        
+        station = Station(name=name, distance=dist_val, station_number=idx, run_id=new_run.id)
+        db.session.add(station)
+    
+    db.session.commit()
+    flash(f'Event "{event_name}" added')
+    return redirect(url_for('profile'))
     return redirect(url_for('profile'))
 
 
@@ -185,6 +213,24 @@ def add_station(run_id):
     db.session.add(new_station)
     db.session.commit()
     return redirect(url_for('home', run_id=run_id))
+
+
+# Station detail page showing items saved for that station
+@app.route('/home/<int:run_id>/station/<int:station_id>', methods=['GET'])
+def station_detail(run_id, station_id):
+    run = db.session.get(Run, run_id)
+    if run is None:
+        abort(404)
+    station = db.session.get(Station, station_id)
+    if station is None or station.run_id != run_id:
+        abort(404)
+
+    # Placeholder lists for items per station. Later, replace with real selections from DB.
+    food = []
+    liquids = []
+    hygiene = []
+
+    return render_template('station.html', run=run, station=station, food=food, liquids=liquids, hygiene=hygiene)
 
 if __name__ == '__main__':
     with app.app_context():

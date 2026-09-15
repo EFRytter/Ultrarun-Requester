@@ -10,14 +10,14 @@
 <h3>Completed events</h3>
 
 {% if completed and completed|length > 0 %}
-    <ul class="completed-list">
+    <div class="completed-list">
     {% for r in completed %}
-        <li>
+        <div class="event-item">
             <strong>{{ r.event_name }}</strong>
             <div>{{ r.date.strftime('%Y-%m-%d') }}{% if r.distance %} | {{ r.distance }} km{% endif %}</div>
-        </li>
+        </div>
     {% endfor %}
-    </ul>
+    </div>
 {% else %}
     <p>No completed events.</p>
 {% endif %}
@@ -25,14 +25,14 @@
 <h3>Upcoming events</h3>
 
 {% if upcoming and upcoming|length > 0 %}
-    <ul class="upcoming-list">
+    <div class="upcoming-list">
     {% for r in upcoming %}
-        <li>
-            <a href="{{ url_for('home', run_id=r.id) }}"><strong>{{ r.event_name }}</strong></a>
+        <div class="event-item">
+            <a class="event-item" href="{{ url_for('home', run_id=r.id) }}"><strong>{{ r.event_name }}</strong></a>
             <div>{{ r.date.strftime('%Y-%m-%d') }}{% if r.distance %} | {{ r.distance }} km{% endif %}</div>
-        </li>
+        </div>
     {% endfor %}
-    </ul>
+    </div>
 {% else %}
     <p>No upcoming events.</p>
 {% endif %}

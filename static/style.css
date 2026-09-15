@@ -65,7 +65,7 @@ h1 {
 h3 {
     padding-top: 25px;
     text-align: center;
-    color: white;
+    color: black;
     
 }
 
@@ -120,15 +120,76 @@ button.add-station {
     background-color: rgb(79, 162, 79)
 }
 
-.next-event {
+.event-item {
+    
     text-align: center;
     border: 1px solid black;
     border-radius: 5px;
     width: 50%;
-    margin: 1px auto 0;
+    margin: 10px auto 0;
     background-color: rgb(188, 214, 188);
+}
+
+a.event-item {
+    text-decoration: none;
+    color: black;
+    border: 0;
 }
 
 .title {
     text-align: center;
+}
+
+/* Timeline styles */
+.timeline-wrapper {
+    width: 90%;
+    margin: 0 auto;
+    padding: 20px 0 10px 0;
+}
+.timeline {
+    position: relative;
+    height: 120px;
+    padding: 20px 10px 10px 10px;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    top: 30px;
+    height: 4px;
+    background: rgba(0,0,0,0.06);
+    z-index: 0;
+    border-radius: 2px;
+}
+.timeline-item {
+    position: absolute;
+    top: 20px;
+    text-align: center;
+    z-index: 2;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+.dot-link { text-decoration: none; }
+.dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #7bd33b;
+    display: inline-block;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.station-label {
+    position: absolute;
+    left: 50%;
+    top: 40px;
+    transform: translateX(-50%) rotate(-25deg);
+    transform-origin: center top;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+/* Small screens: make labels wrap and not rotate */
+@media (max-width: 700px) {
+    .station-label { transform: none; display:block; margin-top:6px; font-size:0.9rem; }
 }
