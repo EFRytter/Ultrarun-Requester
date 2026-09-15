@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<a class="tilbage" href="{{ url_for('profile') }}">&larr;</a>
+<h1 class="welcome">Add a new event</h1>
+
+<form action="{{ url_for('add_event') }}" method="POST">
+    <div class="container">
+        <label for="event_name"> <b>Event name:</b></label><br>
+        <input type="text" placeholder="Enter event name" name="event_name" required><br>
+    
+        <label for="distance"><b>Total distance in km:</b></label><br>
+        <input type="number" placeholder="Enter distance" name="distance" required><br>
+
+        <label for="date"><b>Date of the event:</b></label><br>
+        <input type="date" placeholder="Enter date" name="date" required><br>
+
+        <label><b>Help stations:</b></label><br>
+        <ol id="stations-list">
+            {% for i in range(1, 3) %}
+            <li class="station">
+                <label>Station {{ i }}</label><br>
+
+                <input type="text"
+                    name="station_name"
+                    placeholder="Station name or address"
+                    required>
+
+                <input type="number"
+                    name="station_distance"
+                    placeholder="Distance in km"
+                    min="0"
+                    step="0.1"
+                    required>
+            </li>
+            {% endfor %}
+        </ol>
+        <button class="add-station" type="button" id="add-station">+ Add another station</button>
+
+        <button class="Create" type="submit">Add run</button>
+    </div>
+    
+</form>
+<script>
+    const stationList = document.getElementById("stations-list");
+    const addStationButton = document.getElementById("add-station");
+
+    addStationButton.addEventListener("click", function () {
+        const stationNumber = stationList.children.length + 1;
+
+        stationList.insertAdjacentHTML("beforeend", `
+            <li class="station">
+                <label>Station ${stationNumber}</label><br>
+
+                <input type="text"
+                       name="station_name"
+                       placeholder="Station name or address"
+                       required>
+
+                <input type="number"
+                       name="station_distance"
+                       placeholder="Distance in km"
+                       min="0"
+                       step="0.1"
+                       required>
+            </li>
+        `);
+    });
+</script>
+{% endblock %}

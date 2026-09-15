@@ -1,38 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        .title {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-        }
+{% extends "base.html" %}
+{% block content %}
+<a class="tilbage" href="{{ url_for('profile') }}">&larr;</a>
 
-        .tops {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px
-        }
+<h3>Stations</h3>
+{% if stations and stations|length > 0 %}
+    <ol class="station-timeline">
+    {% for s in stations %}
+        <li>{{ s.station_number }} - {{ s.name }} ({{ s.distance }} km)</li>
+    {% endfor %}
+    </ol>
+{% else %}
+    <p>No stations defined for this run yet.</p>
+{% endif %}
+    <p><a href="{{ url_for('add_station', run_id=run.id) }}">Add station</a></p>
 
-        .tops a {
-            text-decoration: none;
-            color: black;
-            
-            border: 1px solid black ;
-            border-radius: 30px;
-            padding: 10px;
-        }
+<div style="display:flex;gap:20px;margin-top:20px;">
+    <section style="flex:1; border:1px solid #ddd; padding:10px;">
+        <h4>Food</h4>
+        {% if food and food|length > 0 %}
+            <ul>
+            {% for item in food %}
+                <li>{{ item }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No food items yet.</p>
+        {% endif %}
+    </section>
 
-    </style>
-</head>
-<body>
-    <p class="title"> 100 Miles Requester </p>
-    <div class="tops">
-        <a href="/food">Food</a>
-        <a href="/liquids">Liquids</a>
-        <a href="/hygiene">Hygiene</a>
-    </div>
-</body>
-</html>
+    <section style="flex:1; border:1px solid #ddd; padding:10px;">
+        <h4>Liquids</h4>
+        {% if liquids and liquids|length > 0 %}
+            <ul>
+            {% for item in liquids %}
+                <li>{{ item }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No liquids yet.</p>
+        {% endif %}
+    </section>
+
+    <section style="flex:1; border:1px solid #ddd; padding:10px;">
+        <h4>Hygiene</h4>
+        {% if hygiene and hygiene|length > 0 %}
+            <ul>
+            {% for item in hygiene %}
+                <li>{{ item }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No hygiene items yet.</p>
+        {% endif %}
+    </section>
+</div>
+
+{% endblock %}

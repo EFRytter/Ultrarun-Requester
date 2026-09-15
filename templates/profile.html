@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<img src="{{ url_for('static', filename='images/background.png') }}" alt="backgroundimg" class="backgroundimg">
+
+<a href="/profileinfo" class="profile-link"> 
+    <img src="{{ url_for('static', filename='images/profile.jpg') }}" alt="profileimg" class="profileimg">
+</a>
+
+<h3>Completed events</h3>
+
+{% if completed and completed|length > 0 %}
+    <ul class="completed-list">
+    {% for r in completed %}
+        <li>
+            <strong>{{ r.event_name }}</strong>
+            <div>{{ r.date.strftime('%Y-%m-%d') }}{% if r.distance %} | {{ r.distance }} km{% endif %}</div>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No completed events.</p>
+{% endif %}
+
+<h3>Upcoming events</h3>
+
+{% if upcoming and upcoming|length > 0 %}
+    <ul class="upcoming-list">
+    {% for r in upcoming %}
+        <li>
+            <a href="{{ url_for('home', run_id=r.id) }}"><strong>{{ r.event_name }}</strong></a>
+            <div>{{ r.date.strftime('%Y-%m-%d') }}{% if r.distance %} | {{ r.distance }} km{% endif %}</div>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No upcoming events.</p>
+{% endif %}
+
+<a class="add-button" href="{{ url_for('add_event') }}">
+<button class="add-run" type="button">Add event</button>
+</a>
+
+{% endblock %}

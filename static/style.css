@@ -11,12 +11,62 @@ img.avatar {
 width: 20%;
 }
 
+.backgroundimg {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+}
+
+.profile-link {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+}
+
+.profileimg {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+html,
 body {
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #e8f3ea;
+    background-image: url("images/mountbg.png");
+    background-size: 80% auto;
+    background-position: center bottom;
+    background-repeat: no-repeat;
     font-family: Arial, sans-serif;
+}
+
+.add-button {
+    text-decoration: none;
 }
 
 h1 {
     text-align: center;
+}
+
+h3 {
+    padding-top: 25px;
+    text-align: center;
+    color: white;
+    
 }
 
 form {
@@ -25,7 +75,8 @@ form {
 }
 
 input[type="text"],
-input[type="password"] {
+input[type="password"],
+input[type="number"] {
     display: block;
     width: 100%;
     box-sizing: border-box;
@@ -43,6 +94,19 @@ button {
     color: white;
     background-color: rgb(79, 162, 79);
 }
+button.add-run {
+    display: block;
+    width: 75%;
+    margin: 100px auto 0;
+}
+
+button.add-station {
+    background-color: grey;
+    width: 70%;
+    margin: 0px auto 0;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
 
 .tilbage {
     display: flex;
@@ -54,4 +118,17 @@ button {
     padding: 10px;
     margin-top: 5px;
     background-color: rgb(79, 162, 79)
+}
+
+.next-event {
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 5px;
+    width: 50%;
+    margin: 1px auto 0;
+    background-color: rgb(188, 214, 188);
+}
+
+.title {
+    text-align: center;
 }
