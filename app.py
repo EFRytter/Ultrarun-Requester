@@ -378,7 +378,7 @@ def add_item():
             rid = int(run_id)
             stations = db.session.scalars(db.select(Station).where(Station.run_id == rid)).all()
             for st in stations:
-                si = StationItem(station_id=st.id, item_id=item.id, checked=True)
+                si = StationItem(station_id=st.id, item_id=item.id, checked=False)
                 db.session.add(si)
             db.session.commit()
         except Exception:
@@ -394,6 +394,57 @@ def add_item():
             resp['image_url'] = url_for('static', filename=f'uploads/{image_filename}')
 
     return resp, 201
+
+
+@app.route('/api/items/<int:item_id>/image', methods=['POST'])
+def update_item_image(item_id):
+    # Update image for an existing item (upload to Vercel Blob)
+    item = db.session.get(Item, item_id)
+    if item is None:
+        return {'error': 'item not found'}, 404
+
+    if 'image' not in request.files:
+        return {'error': 'no image provided'}, 400
+
+    img = request.files['image']
+    if not img or not img.filename:
+        return {'error': 'invalid image'}, 400
+
+    filename = secure_filename(img.filename)
+    unique_name = f"{uuid.uuid4().hex}_{filename}"
+    try:
+        resp = vercel_blob.put(unique_name, img.read())
+        image_url = None
+        if isinstance(resp, dict):
+            image_url = resp.get('url') or resp.get('public_url') or resp.get('publicUrl')
+        else:
+            image_url = getattr(resp, 'url', None) or getattr(resp, 'public_url', None) or getattr(resp, 'publicUrl', None)
+        if not image_url and isinstance(resp, str) and (resp.startswith('http://') or resp.startswith('https://')):
+            image_url = resp
+        item.image_filename = image_url or unique_name
+        db.session.add(item)
+        db.session.commit()
+        out = item.as_dict()
+        out['image_url'] = image_url or (url_for('static', filename=f'uploads/{item.image_filename}') if item.image_filename else None)
+        return out, 200
+    except TypeError:
+        token = os.environ.get('BLOB_READ_WRITE_TOKEN')
+        resp = vercel_blob.put(unique_name, img.read(), token)
+        image_url = None
+        if isinstance(resp, dict):
+            image_url = resp.get('url') or resp.get('public_url') or resp.get('publicUrl')
+        else:
+            image_url = getattr(resp, 'url', None) or getattr(resp, 'public_url', None) or getattr(resp, 'publicUrl', None)
+        if not image_url and isinstance(resp, str) and (resp.startswith('http://') or resp.startswith('https://')):
+            image_url = resp
+        item.image_filename = image_url or unique_name
+        db.session.add(item)
+        db.session.commit()
+        out = item.as_dict()
+        out['image_url'] = image_url or (url_for('static', filename=f'uploads/{item.image_filename}') if item.image_filename else None)
+        return out, 200
+    except Exception:
+        return {'error': 'upload failed'}, 500
 
 
 @app.route('/api/items', methods=['GET'])

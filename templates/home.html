@@ -32,10 +32,14 @@
             {% if food and food|length > 0 %}
                 {% for item in food %}
                     <label class="item-label">
-                        <input type="checkbox" checked data-item-id="{{ item.id }}">
+                        <input type="checkbox" data-item-id="{{ item.id }}">
                         <span class="item-name">{{ item.name }}</span>
                         {% if item.image_filename %}
-                            <img src="{{ item.image_filename }}" class="item-thumb">
+                            {% if item.image_filename.startswith('http') %}
+                                <img src="{{ item.image_filename }}" class="item-thumb">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
+                            {% endif %}
                         {% endif %}
                         {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
                     </label>
@@ -52,12 +56,16 @@
             {% if liquids and liquids|length > 0 %}
                 {% for item in liquids %}
                     <label class="item-label">
-                        <input type="checkbox" checked data-item-id="{{ item.id }}">
+                        <input type="checkbox" data-item-id="{{ item.id }}">
                         <span class="item-name">{{ item.name }}</span>
                         {% if item.image_filename %}
-                            <img src="{{ item.image_filename }}" class="item-thumb">
+                            {% if item.image_filename.startswith('http') %}
+                                <img src="{{ item.image_filename }}" class="item-thumb">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
+                            {% endif %}
                         {% endif %}
-                        {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
+                        {% if item.carbs %}<span class="item-carbs">Carbs per 100g: {{ item.carbs }}</span>{% endif %}
                     </label>
                 {% endfor %}
             {% endif %}
@@ -72,10 +80,14 @@
             {% if other and other|length > 0 %}
                 {% for item in other %}
                     <label class="item-label">
-                        <input type="checkbox" checked data-item-id="{{ item.id }}">
+                        <input type="checkbox" data-item-id="{{ item.id }}">
                         <span class="item-name">{{ item.name }}</span>
                         {% if item.image_filename %}
-                            <img src="{{ item.image_filename }}" class="item-thumb">
+                            {% if item.image_filename.startswith('http') %}
+                                <img src="{{ item.image_filename }}" class="item-thumb">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
+                            {% endif %}
                         {% endif %}
                         {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
                     </label>
@@ -152,7 +164,12 @@
                         label.appendChild(cb);
                         label.appendChild(nameSpan);
                         if (it.image_filename) {
-                            const img = document.createElement('img'); img.src = it.image_filename; img.className = 'item-thumb';
+                            const img = document.createElement('img');
+                            let src = it.image_filename;
+                            if (!(src.startsWith && (src.startsWith('http://') || src.startsWith('https://')))) {
+                                src = '/static/uploads/' + it.image_filename;
+                            }
+                            img.src = src; img.className = 'item-thumb';
                             label.appendChild(img);
                         }
                         if (it.carbs) {
@@ -262,7 +279,7 @@
             // append returned item to list
             const li = document.createElement('li');
             const label = document.createElement('label'); label.className = 'item-label';
-            const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = true; cb.setAttribute('data-item-id', data.id);
+            const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = false; cb.setAttribute('data-item-id', data.id);
             const nameSpan = document.createElement('span'); nameSpan.className = 'item-name'; nameSpan.textContent = data.name;
             label.appendChild(cb);
             label.appendChild(nameSpan);
