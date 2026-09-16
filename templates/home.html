@@ -41,6 +41,8 @@
                                 <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
                             {% endif %}
                         {% endif %}
+                        <button type="button" class="change-image-btn" data-item-id="{{ item.id }}" title="Change image">✎</button>
+                        <input type="file" class="change-image-input" data-item-id="{{ item.id }}" accept="image/*" style="display:none;">
                         {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
                     </label>
                 {% endfor %}
@@ -65,6 +67,8 @@
                                 <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
                             {% endif %}
                         {% endif %}
+                        <button type="button" class="change-image-btn" data-item-id="{{ item.id }}" title="Change image">✎</button>
+                        <input type="file" class="change-image-input" data-item-id="{{ item.id }}" accept="image/*" style="display:none;">
                         {% if item.carbs %}<span class="item-carbs">Carbs per 100g: {{ item.carbs }}</span>{% endif %}
                     </label>
                 {% endfor %}
@@ -89,6 +93,8 @@
                                 <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
                             {% endif %}
                         {% endif %}
+                        <button type="button" class="change-image-btn" data-item-id="{{ item.id }}" title="Change image">✎</button>
+                        <input type="file" class="change-image-input" data-item-id="{{ item.id }}" accept="image/*" style="display:none;">
                         {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
                     </label>
                 {% endfor %}
@@ -176,12 +182,18 @@
                             const carbsSpan = document.createElement('span'); carbsSpan.className = 'item-carbs'; carbsSpan.textContent = 'Carb: ' + it.carbs;
                             label.appendChild(carbsSpan);
                         }
+                        // change image controls
+                        const changeBtn = document.createElement('button'); changeBtn.type='button'; changeBtn.className='change-image-btn'; changeBtn.setAttribute('data-item-id', it.id); changeBtn.textContent='✎';
+                        const changeInput = document.createElement('input'); changeInput.type='file'; changeInput.className='change-image-input'; changeInput.accept='image/*'; changeInput.style.display='none'; changeInput.setAttribute('data-item-id', it.id);
+                        label.appendChild(changeBtn);
+                        label.appendChild(changeInput);
                         li.appendChild(label);
                         ul.appendChild(li);
                     }
                 }
             });
             bindCheckboxListeners();
+            bindImageChangeListeners();
         } catch (err) {
             console.error('Failed to load station items', err);
         }
@@ -251,6 +263,59 @@
         });
     }
 
+        function bindImageChangeListeners() {
+            // bind click on change-image buttons to open hidden file inputs
+            document.querySelectorAll('.change-image-btn').forEach(btn => {
+                if (btn._boundImage) return;
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-item-id');
+                    const inp = document.querySelector('.change-image-input[data-item-id="' + id + '"]');
+                    if (inp) inp.click();
+                });
+                btn._boundImage = true;
+            });
+
+            // bind file input change to upload image for the item
+            document.querySelectorAll('.change-image-input').forEach(inp => {
+                if (inp._boundInput) return;
+                inp.addEventListener('change', async (e) => {
+                    const file = e.currentTarget.files && e.currentTarget.files[0];
+                    if (!file) return;
+                    const id = e.currentTarget.getAttribute('data-item-id');
+                    const fd = new FormData();
+                    fd.append('image', file);
+                    try {
+                        const res = await fetch('/api/items/' + id + '/image', { method: 'POST', body: fd });
+                        if (!res.ok) {
+                            const err = await res.json().catch(()=>({}));
+                            alert('Failed to upload image: ' + (err.error || res.status));
+                            return;
+                        }
+                        const data = await res.json();
+                        const url = data.image_url || data.image_filename || null;
+                        let src = url;
+                        if (src && !(src.startsWith && (src.startsWith('http://') || src.startsWith('https://')))) {
+                            src = '/static/uploads/' + src;
+                        }
+                        // find label for this item and update or create img
+                        const checkbox = document.querySelector('input[data-item-id="' + id + '"]');
+                        const label = checkbox && checkbox.closest('label');
+                        if (label) {
+                            let img = label.querySelector('img.item-thumb');
+                            if (img) img.src = src;
+                            else if (src) {
+                                img = document.createElement('img'); img.className = 'item-thumb'; img.src = src; label.insertBefore(img, label.querySelector('.change-image-btn'));
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Image upload failed', err);
+                        alert('Image upload failed');
+                    }
+                });
+                inp._boundInput = true;
+            });
+        }
+
     addItemForm.addEventListener('submit', async (e)=>{
         e.preventDefault();
         const cat = formCategory.value || 'other';
@@ -291,6 +356,11 @@
                 const carbsSpan = document.createElement('span'); carbsSpan.className = 'item-carbs'; carbsSpan.textContent = 'Carb: ' + data.carbs;
                 label.appendChild(carbsSpan);
             }
+            // change image controls for newly added item
+            const changeBtnNew = document.createElement('button'); changeBtnNew.type='button'; changeBtnNew.className='change-image-btn'; changeBtnNew.setAttribute('data-item-id', data.id); changeBtnNew.textContent='✎';
+            const changeInputNew = document.createElement('input'); changeInputNew.type='file'; changeInputNew.className='change-image-input'; changeInputNew.accept='image/*'; changeInputNew.style.display='none'; changeInputNew.setAttribute('data-item-id', data.id);
+            label.appendChild(changeBtnNew);
+            label.appendChild(changeInputNew);
             li.appendChild(label);
 
             let targetId = 'other-list';
@@ -306,6 +376,7 @@
             });
 
             bindCheckboxListeners();
+            bindImageChangeListeners();
 
             // hide empty messages
             ['food','liquids','other'].forEach(c => {
@@ -320,8 +391,9 @@
             alert('Error saving item');
         }
     });
-    // bind existing checkboxes
+    // bind existing checkboxes and image-change controls
     bindCheckboxListeners();
+    bindImageChangeListeners();
 
     // select first station by default and load its item states
     const firstDot = document.querySelector('.dot-link');

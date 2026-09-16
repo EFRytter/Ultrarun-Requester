@@ -20,6 +20,8 @@
                             <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">
                         {% endif %}
                     {% endif %}
+                    <button type="button" class="change-image-btn" data-item-id="{{ item.id }}" title="Change image">✎</button>
+                    <input type="file" class="change-image-input" data-item-id="{{ item.id }}" accept="image/*" style="display:none;">
                     {% if item.carbs %}<span style="margin-left:6px;">Carb: {{ item.carbs }}</span>{% endif %}
                 </li>
             {% endfor %}
@@ -43,6 +45,8 @@
                             <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">
                         {% endif %}
                     {% endif %}
+                    <button type="button" class="change-image-btn" data-item-id="{{ item.id }}" title="Change image">✎</button>
+                    <input type="file" class="change-image-input" data-item-id="{{ item.id }}" accept="image/*" style="display:none;">
                     {% if item.carbs %}<span style="margin-left:6px;">Carb: {{ item.carbs }}</span>{% endif %}
                 </li>
             {% endfor %}
@@ -66,6 +70,8 @@
                             <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">
                         {% endif %}
                     {% endif %}
+                    <button type="button" class="change-image-btn" data-item-id="{{ item.id }}" title="Change image">✎</button>
+                    <input type="file" class="change-image-input" data-item-id="{{ item.id }}" accept="image/*" style="display:none;">
                     {% if item.carbs %}<span style="margin-left:6px;">Carb: {{ item.carbs }}</span>{% endif %}
                 </li>
             {% endfor %}
@@ -75,5 +81,60 @@
         {% endif %}
     </section>
 </div>
+
+<script>
+// Bind change-image controls on station page
+(function(){
+    function bind() {
+        document.querySelectorAll('.change-image-btn').forEach(btn => {
+            if (btn._bound) return;
+            btn.addEventListener('click', (e) => {
+                const id = e.currentTarget.getAttribute('data-item-id');
+                const inp = document.querySelector('.change-image-input[data-item-id="' + id + '"]');
+                if (inp) inp.click();
+            });
+            btn._bound = true;
+        });
+
+        document.querySelectorAll('.change-image-input').forEach(inp => {
+            if (inp._bound) return;
+            inp.addEventListener('change', async (e) => {
+                const file = e.currentTarget.files && e.currentTarget.files[0];
+                if (!file) return;
+                const id = e.currentTarget.getAttribute('data-item-id');
+                const fd = new FormData(); fd.append('image', file);
+                try {
+                    const res = await fetch('/api/items/' + id + '/image', { method: 'POST', body: fd });
+                    if (!res.ok) {
+                        const err = await res.json().catch(()=>({}));
+                        alert('Failed to upload image: ' + (err.error || res.status));
+                        return;
+                    }
+                    const data = await res.json();
+                    const url = data.image_url || data.image_filename || null;
+                    let src = url;
+                    if (src && !(src.startsWith && (src.startsWith('http://') || src.startsWith('https://')))) {
+                        src = '/static/uploads/' + src;
+                    }
+                    const btn = document.querySelector('.change-image-btn[data-item-id="' + id + '"]');
+                    const li = btn && btn.closest('li');
+                    if (li) {
+                        let img = li.querySelector('img.item-thumb');
+                        if (img) img.src = src;
+                        else if (src) {
+                            img = document.createElement('img'); img.className='item-thumb'; img.src = src; li.insertBefore(img, btn);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Image upload failed', err);
+                    alert('Image upload failed');
+                }
+            });
+            inp._bound = true;
+        });
+    }
+    bind();
+})();
+</script>
 
 {% endblock %}
