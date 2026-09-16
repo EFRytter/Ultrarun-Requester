@@ -443,8 +443,10 @@ def update_item_image(item_id):
         out = item.as_dict()
         out['image_url'] = image_url or (url_for('static', filename=f'uploads/{item.image_filename}') if item.image_filename else None)
         return out, 200
-    except Exception:
-        return {'error': 'upload failed'}, 500
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {'error': str(e)}, 500
 
 
 @app.route('/api/items', methods=['GET'])
