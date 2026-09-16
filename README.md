@@ -1,47 +1,82 @@
+# 100 Miles Requester
 
-# 100 Miles Food Requester
-A web application for ultrarunners and their crew members to plan and communicate food, drink, and hygiene needs at upcoming aid/deposit stations.
+Author: EFRytter (Kenan)
+Project: food-request-100miles
+License: MIT (choose a license you prefer and update this section)
 
-# Purpose
-During a long-distance run, runners may need different supplies at each station. This website lets a runner select what they want at each upcoming station, while crew members see the same requests immediately and can prepare the correct items.
+Overview
+--------
+This is a small Flask web application that helps endurance event teams coordinate food, drink and other supplies at aid stations during a run. Team members (crew) can create runs and stations; runners can select which items they want at each station; crew can view those selections and prepare accordingly.
 
-# Users
-Runner: Selects required supplies for each station.
-Crew member: Views the runner’s selected supplies and uses the list to prepare station bags or handovers.
+Why this README exists
+-----------------------
+This README explains what the project does, how to set up a development environment, how to run the app locally, where to find important files, and how to contribute or extend the project.
 
-Shared access: The app is designed so multiple people can open it online during the event.
+Quick start (development)
+-------------------------
+1. Create and activate a virtual environment (recommended):
 
-# Main features
-Station setup
-Users can create stations for a specific run. Each station includes:
-* Station name
-* Address or location
-* Mileage or distance point in the race
-* Order in the route
-Stations are shown in mileage order as a timeline across the top of the page, giving users a clear overview of upcoming stops.
+	Windows (PowerShell):
+	```powershell
+	python -m venv .venv
+	.\.venv\Scripts\Activate.ps1
+	pip install -r requirements.txt
+	```
 
-# Runner view
-The runner view shows the selected station and three supply categories:
-* Food
-* Liquids
-* Other items
-Each category contains a checklist of available items. The runner selects an item by ticking its checkbox.
+	macOS / Linux:
+	```bash
+	python3 -m venv .venv
+	source .venv/bin/activate
+	pip install -r requirements.txt
+	```
 
-A selection is connected to one specific station. For example, a runner may request soup and cola at Station 3, but only water and sunscreen at Station 4.
+2. Initialize the database and start the server:
 
-# Crew view
-The crew view displays the same station timeline and selected supply lists.
-An item selected by the runner is visually marked with a green background.
-Items not selected remain unmarked.
-The crew member can quickly switch between stations to prepare the correct supplies.
-The runner and crew views show the same saved data, but present it differently: the runner edits selections, while the crew mainly reads them.
+	```bash
+	python app.py
+	```
 
-# Saving requests
-Every selected item must be saved in the SQL database together with the station it belongs to.
-When a runner ticks an item, the app creates and saves a selection for that station.
-When a runner unticks an item, the saved selection is deleted.
-The crew view reads the latest saved selections from the database.
-This means the app does not rely on temporary Python lists, which disappear when the server restarts; instead, selections remain available online for both runners and crew.
+	The app will create the SQLite database under the `instance/` folder and start a development server at `http://127.0.0.1:5000` by default.
 
-# Live updates
-The crew page should refresh automatically at a regular interval so newly selected items become visible without the crew member manually reloading the page. A later improvement could use real-time updates, but automatic refresh is the simplest reliable first version.
+Running tests and helpers
+-------------------------
+- `render_home_test.py`: helper script to render templates without running the full server (useful to check template errors).
+- `inspect_db.py` / `inspect_instance_db.py`: small helpers to inspect the SQLite files.
+- `test_add_run.py`: simple integration-style checks (not a full test-suite).
+
+Project layout
+--------------
+- `app.py` — Main Flask application, routes, and SQLAlchemy models.
+- `templates/` — Jinja2 templates for pages: `base.html`, `home.html`, `station.html`, `addevent.html`, `addstation.html`, `login.html`, `profile.html`, `register.html`.
+- `static/` — Static assets including `style.css`, `images/`, and uploaded item images under `static/uploads`.
+- `instance/` — Holds runtime instance files, including SQLite DB files.
+- `requirements.txt` — Python package dependencies for development and running the app.
+
+Important details
+-----------------
+- The app uses Flask + SQLAlchemy and stores data in SQLite for simplicity. For production use, consider PostgreSQL and proper migrations (Flask-Migrate / Alembic).
+- The app stores uploaded images in `static/uploads`. Filenames are sanitized with `werkzeug.utils.secure_filename`.
+- Team authentication is basic: users are `Team` records with a password hash. Current code uses `session['team_id']` for scoping `Item`s; improve authentication before public deployment.
+- Database schema changes are applied via `db.create_all()` at startup. If you need safe upgrades, add migration tooling.
+
+How to contribute
+-----------------
+1. Fork the repository and create a feature branch.
+2. Make changes and add tests where appropriate.
+3. Open a pull request with a clear description of the change and why it is needed.
+
+Suggested improvements
+----------------------
+- Add edit/delete for Items and StationItems from the UI.
+- Extract inline JavaScript and CSS into static files for caching and maintainability.
+- Add proper user registration/login flows and permissions.
+- Replace periodic polling with WebSocket-based live updates for real-time sync.
+- Add database migrations and deploy to a hosted database for production.
+
+Contact / Author
+----------------
+Project maintained by EFRytter. For questions or help, open an issue on the project repository.
+
+License
+-------
+This project is provided under the MIT license, or change to any license you prefer. Update this section to reflect the chosen license file.
