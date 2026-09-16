@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+        {% raw %}
         <!--
         Base template for all pages.
 
@@ -18,6 +19,7 @@
         - `{% block content %}`: the main page content supplied by each
             specific template (home, profile, station, etc.).
         -->
+        {% endraw %}
         {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
