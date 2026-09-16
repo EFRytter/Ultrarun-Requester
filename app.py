@@ -24,12 +24,20 @@ from werkzeug.utils import secure_filename
 from datetime import datetime, date
 
 app = Flask(__name__)
-# Ensure the instance folder exists and use an absolute path to avoid
-# 'unable to open database file' errors when running from different CWDs.
-os.makedirs(app.instance_path, exist_ok=True)
-db_path = os.path.join(app.instance_path, 'team.sqlite3')
-# SQLite URIs must use forward slashes
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path.replace('\\', '/')
+database_url = os.environ.get('DATABASE_URL')
+
+if database_url:
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    # Ensure the instance folder exists and use an absolute path to avoid
+    # 'unable to open database file' errors when running from different CWDs.
+    os.makedirs(app.instance_path, exist_ok=True)
+    db_path = os.path.join(app.instance_path, 'team.sqlite3')
+    # SQLite URIs must use forward slashes
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path.replace('\\', '/')
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'a-long-random-private-value'
 db = SQLAlchemy(app)
