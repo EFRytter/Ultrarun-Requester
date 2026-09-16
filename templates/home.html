@@ -35,7 +35,7 @@
                         <input type="checkbox" checked data-item-id="{{ item.id }}">
                         <span class="item-name">{{ item.name }}</span>
                         {% if item.image_filename %}
-                            <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
+                            <img src="{{ item.image_filename }}" class="item-thumb">
                         {% endif %}
                         {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
                     </label>
@@ -55,7 +55,7 @@
                         <input type="checkbox" checked data-item-id="{{ item.id }}">
                         <span class="item-name">{{ item.name }}</span>
                         {% if item.image_filename %}
-                            <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
+                            <img src="{{ item.image_filename }}" class="item-thumb">
                         {% endif %}
                         {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
                     </label>
@@ -75,7 +75,7 @@
                         <input type="checkbox" checked data-item-id="{{ item.id }}">
                         <span class="item-name">{{ item.name }}</span>
                         {% if item.image_filename %}
-                            <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
+                            <img src="{{ item.image_filename }}" class="item-thumb">
                         {% endif %}
                         {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
                     </label>
@@ -152,7 +152,7 @@
                         label.appendChild(cb);
                         label.appendChild(nameSpan);
                         if (it.image_filename) {
-                            const img = document.createElement('img'); img.src = '/static/uploads/' + it.image_filename; img.className = 'item-thumb';
+                            const img = document.createElement('img'); img.src = it.image_filename; img.className = 'item-thumb';
                             label.appendChild(img);
                         }
                         if (it.carbs) {

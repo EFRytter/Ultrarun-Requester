@@ -13,7 +13,7 @@
             {% for item in food %}
                 <li>
                     <strong>{{ item.name }}</strong>
-                    {% if item.image_filename %}<img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">{% endif %}
+                    {% if item.image_filename %}<img src="{{ item.image_filename }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">{% endif %}
                     {% if item.carbs %}<span style="margin-left:6px;">Carb: {{ item.carbs }}</span>{% endif %}
                 </li>
             {% endfor %}
@@ -30,7 +30,7 @@
             {% for item in liquids %}
                 <li>
                     <strong>{{ item.name }}</strong>
-                    {% if item.image_filename %}<img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">{% endif %}
+                    {% if item.image_filename %}<img src="{{ item.image_filename }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">{% endif %}
                     {% if item.carbs %}<span style="margin-left:6px;">Carb: {{ item.carbs }}</span>{% endif %}
                 </li>
             {% endfor %}
@@ -47,7 +47,7 @@
             {% for item in other %}
                 <li>
                     <strong>{{ item.name }}</strong>
-                    {% if item.image_filename %}<img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">{% endif %}
+                    {% if item.image_filename %}<img src="{{ item.image_filename }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">{% endif %}
                     {% if item.carbs %}<span style="margin-left:6px;">Carb: {{ item.carbs }}</span>{% endif %}
                 </li>
             {% endfor %}

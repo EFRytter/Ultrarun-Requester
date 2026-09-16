@@ -18,6 +18,8 @@ High-level overview for new readers:
 
 from flask import Flask, flash, request, render_template, redirect, url_for, session, abort
 import os
+import uuid
+import vercel_blob
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -334,12 +336,36 @@ def add_item():
     if 'image' in request.files:
         img = request.files['image']
         if img and img.filename:
-            uploads = os.path.join(app.root_path, 'static', 'uploads')
-            os.makedirs(uploads, exist_ok=True)
             filename = secure_filename(img.filename)
-            path = os.path.join(uploads, filename)
-            img.save(path)
-            image_filename = filename
+            unique_name = f"{uuid.uuid4().hex}_{filename}"
+            try:
+                # Attempt to upload to Vercel Blob. The vercel_blob.put API may
+                # return a dict or an object containing a URL; handle common shapes.
+                resp = vercel_blob.put(unique_name, img.read())
+                image_url = None
+                if isinstance(resp, dict):
+                    image_url = resp.get('url') or resp.get('public_url') or resp.get('publicUrl')
+                else:
+                    image_url = getattr(resp, 'url', None) or getattr(resp, 'public_url', None) or getattr(resp, 'publicUrl', None)
+                # If response is a plain string URL
+                if not image_url and isinstance(resp, str) and (resp.startswith('http://') or resp.startswith('https://')):
+                    image_url = resp
+                image_filename = image_url or unique_name
+            except TypeError:
+                # Some versions of the SDK may require an explicit token parameter.
+                token = os.environ.get('BLOB_READ_WRITE_TOKEN')
+                resp = vercel_blob.put(unique_name, img.read(), token)
+                image_url = None
+                if isinstance(resp, dict):
+                    image_url = resp.get('url') or resp.get('public_url') or resp.get('publicUrl')
+                else:
+                    image_url = getattr(resp, 'url', None) or getattr(resp, 'public_url', None) or getattr(resp, 'publicUrl', None)
+                if not image_url and isinstance(resp, str) and (resp.startswith('http://') or resp.startswith('https://')):
+                    image_url = resp
+                image_filename = image_url or unique_name
+            except Exception:
+                # If upload fails for any reason, leave image_filename as None
+                image_filename = None
 
     item = Item(name=name, category=category, carbs=carbs, calories=calories, protein=protein, image_filename=image_filename, team_id=team_id)
     db.session.add(item)
