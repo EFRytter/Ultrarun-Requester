@@ -1,7 +1,7 @@
-# 100 Miles Requester
+# Ultrarun Requester
 
-Author: EFRytter (Kenan)
-Project: food-request-100miles
+Author: EFRytter 
+Project: Ultrarun-Requester
 License: MIT (choose a license you prefer and update this section)
 
 Overview
