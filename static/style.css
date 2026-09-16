@@ -158,7 +158,7 @@ a.event-item {
     right: 5%;
     top: 30px;
     height: 4px;
-    background: rgba(0,0,0,0.06);
+    background: #7bd33b;
     z-index: 0;
     border-radius: 2px;
 }

@@ -1,7 +1,26 @@
+"""
+Main Flask application for the 100 Miles Food Requester.
+
+High-level overview for new readers:
+- Purpose: Provide a small web app that lets event teams create runs with stations
+    and maintain per-station supply lists (food, liquids, other). Runners can
+    select items per station and crew can view the lists.
+- Structure: This file contains the Flask app setup, SQLAlchemy models,
+    route handlers for the web UI, and JSON API endpoints used by the
+    front-end JavaScript.
+- Important sections:
+    1. Configuration and database initialization (app, db)
+    2. ORM models: `Team`, `Run`, `Station`, `Item`, `StationItem`
+    3. Web routes: account/register/login/profile/add events and stations
+    4. Run/station views: `home(run_id)` and `station_detail(run_id, station_id)`
+    5. API endpoints: `/api/items` (GET/POST) and `/api/station_item` (POST)
+"""
+
 from flask import Flask, flash, request, render_template, redirect, url_for, session, abort
 import os
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from datetime import datetime, date
 
 app = Flask(__name__)
@@ -40,6 +59,39 @@ class Station(db.Model):
     @property
     def event_run_id(self):
         return self.run_id
+
+
+class Item(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(300), nullable=False)
+    category = db.Column(db.String(50), nullable=False)  # 'food', 'liquids', 'other'
+    carbs = db.Column(db.Float, nullable=True)
+    calories = db.Column(db.Float, nullable=True)
+    protein = db.Column(db.Float, nullable=True)
+    image_filename = db.Column(db.String(300), nullable=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=True)
+
+    def as_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'category': self.category,
+            'carbs': self.carbs,
+            'calories': self.calories,
+            'protein': self.protein,
+            'image_filename': self.image_filename,
+            'team_id': self.team_id,
+        }
+
+
+class StationItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
+    checked = db.Column(db.Boolean, nullable=False, default=False)
+
+    station = db.relationship('Station', backref='station_items')
+    item = db.relationship('Item', backref='station_items')
 
 # page to create a new account
 @app.route('/register', methods=['GET', 'POST'])
@@ -100,16 +152,14 @@ def profile():
     completed = db.session.scalars(
         db.select(Run).where(Run.date < today).order_by(Run.date.desc())
     ).all()
-
     return render_template('profile.html', upcoming=upcoming, completed=completed)
 
-# add event
 @app.route('/add', methods=['GET', 'POST'])
 def add_event():
     if request.method == 'GET':
         return render_template('addevent.html')
 
-    # POST
+    # POST handler: validate and create a new Run and its Stations
     team_id = session.get('team_id')
     event_name = request.form.get('event_name')
     distance = request.form.get('distance')
@@ -129,33 +179,34 @@ def add_event():
         first_team = db.session.scalars(db.select(Team)).first()
         team_id = first_team.id if first_team is not None else None
 
-    new_run = Run(event_name=event_name, date=event_date, distance=float(distance) if distance else None, team_id=team_id)
+    new_run = Run(
+        event_name=event_name,
+        date=event_date,
+        distance=float(distance) if distance else None,
+        team_id=team_id,
+    )
     db.session.add(new_run)
     db.session.commit()
-    
-    # Save stations submitted in the add-event form. The form uses
-    # repeated fields named 'station_name' and 'station_distance'.
+
+    # Save any stations provided in the form (repeated fields)
     station_names = request.form.getlist('station_name')
     station_distances = request.form.getlist('station_distance')
-    
     for idx, name in enumerate(station_names, start=1):
         if not name:
             continue
-        # get matching distance if provided
         dist_val = 0.0
         try:
-            if idx-1 < len(station_distances):
-                raw = station_distances[idx-1]
+            if idx - 1 < len(station_distances):
+                raw = station_distances[idx - 1]
                 dist_val = float(raw) if raw else 0.0
         except ValueError:
             dist_val = 0.0
-        
+
         station = Station(name=name, distance=dist_val, station_number=idx, run_id=new_run.id)
         db.session.add(station)
-    
+
     db.session.commit()
     flash(f'Event "{event_name}" added')
-    return redirect(url_for('profile'))
     return redirect(url_for('profile'))
 
 
@@ -170,12 +221,18 @@ def home(run_id):
         db.select(Station).where(Station.run_id == run_id).order_by(Station.station_number)
     ).all()
 
-    # Placeholder category lists. Later these should be read from the DB selections.
-    food = []
-    liquids = []
-    hygiene = []
+    # load items for the current user (team)
+    team_id = session.get('team_id')
+    if not team_id:
+        first_team = db.session.scalars(db.select(Team)).first()
+        team_id = first_team.id if first_team is not None else None
 
-    return render_template('home.html', run=run, stations=stations, food=food, liquids=liquids, hygiene=hygiene)
+    items = db.session.scalars(db.select(Item).where(Item.team_id == team_id)).all() if team_id is not None else []
+    food = [i for i in items if i.category == 'food']
+    liquids = [i for i in items if i.category == 'liquids']
+    other = [i for i in items if i.category == 'other']
+
+    return render_template('home.html', run=run, stations=stations, food=food, liquids=liquids, other=other)
 
 
 # Add station to a run
@@ -225,15 +282,136 @@ def station_detail(run_id, station_id):
     if station is None or station.run_id != run_id:
         abort(404)
 
-    # Placeholder lists for items per station. Later, replace with real selections from DB.
-    food = []
-    liquids = []
-    hygiene = []
+    team_id = session.get('team_id')
+    if not team_id:
+        first_team = db.session.scalars(db.select(Team)).first()
+        team_id = first_team.id if first_team is not None else None
 
-    return render_template('station.html', run=run, station=station, food=food, liquids=liquids, hygiene=hygiene)
+    items = db.session.scalars(db.select(Item).where(Item.team_id == team_id)).all() if team_id is not None else []
+    food = [i for i in items if i.category == 'food']
+    liquids = [i for i in items if i.category == 'liquids']
+    other = [i for i in items if i.category == 'other']
+
+    return render_template('station.html', run=run, station=station, food=food, liquids=liquids, other=other)
+
+
+@app.route('/api/items', methods=['POST'])
+def add_item():
+    # accept multipart/form-data (for file) or JSON
+    name = request.form.get('name') or (request.json and request.json.get('name'))
+    category = request.form.get('category') or (request.json and request.json.get('category'))
+    if not name or not category:
+        return {'error': 'name and category required'}, 400
+
+    try:
+        carbs = float(request.form.get('carbs')) if request.form.get('carbs') else None
+    except ValueError:
+        carbs = None
+    try:
+        calories = float(request.form.get('calories')) if request.form.get('calories') else None
+    except ValueError:
+        calories = None
+    try:
+        protein = float(request.form.get('protein')) if request.form.get('protein') else None
+    except ValueError:
+        protein = None
+
+    # determine team
+    team_id = session.get('team_id')
+    if not team_id:
+        first_team = db.session.scalars(db.select(Team)).first()
+        team_id = first_team.id if first_team is not None else None
+
+    image_filename = None
+    if 'image' in request.files:
+        img = request.files['image']
+        if img and img.filename:
+            uploads = os.path.join(app.root_path, 'static', 'uploads')
+            os.makedirs(uploads, exist_ok=True)
+            filename = secure_filename(img.filename)
+            path = os.path.join(uploads, filename)
+            img.save(path)
+            image_filename = filename
+
+    item = Item(name=name, category=category, carbs=carbs, calories=calories, protein=protein, image_filename=image_filename, team_id=team_id)
+    db.session.add(item)
+    db.session.commit()
+
+    # If run_id provided, create StationItem entries for all stations in that run
+    run_id = request.form.get('run_id') or (request.json and request.json.get('run_id'))
+    if run_id:
+        try:
+            rid = int(run_id)
+            stations = db.session.scalars(db.select(Station).where(Station.run_id == rid)).all()
+            for st in stations:
+                si = StationItem(station_id=st.id, item_id=item.id, checked=True)
+                db.session.add(si)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+    resp = item.as_dict()
+    if image_filename:
+        resp['image_url'] = url_for('static', filename=f'uploads/{image_filename}')
+
+    return resp, 201
+
+
+@app.route('/api/items', methods=['GET'])
+def list_items_for_station():
+    station_id = request.args.get('station_id', type=int)
+    team_id = session.get('team_id')
+    if not team_id:
+        first_team = db.session.scalars(db.select(Team)).first()
+        team_id = first_team.id if first_team is not None else None
+
+    items = db.session.scalars(db.select(Item).where(Item.team_id == team_id)).all() if team_id is not None else []
+    result = []
+    for it in items:
+        checked = False
+        if station_id:
+            si = db.session.scalars(db.select(StationItem).where(StationItem.station_id == station_id, StationItem.item_id == it.id)).first()
+            checked = bool(si.checked) if si is not None else False
+        result.append({
+            'id': it.id,
+            'name': it.name,
+            'category': it.category,
+            'carbs': it.carbs,
+            'calories': it.calories,
+            'protein': it.protein,
+            'image_filename': it.image_filename,
+            'checked': checked,
+        })
+
+    return {'items': result}
+
+
+@app.route('/api/station_item', methods=['POST'])
+def set_station_item_checked():
+    station_id = request.form.get('station_id') or (request.json and request.json.get('station_id'))
+    item_id = request.form.get('item_id') or (request.json and request.json.get('item_id'))
+    checked = request.form.get('checked') or (request.json and request.json.get('checked'))
+    if station_id is None or item_id is None:
+        return {'error': 'station_id and item_id required'}, 400
+    try:
+        sid = int(station_id)
+        iid = int(item_id)
+        checked_bool = True if str(checked).lower() in ('1','true','yes') else False
+    except ValueError:
+        return {'error': 'invalid ids'}, 400
+
+    si = db.session.scalars(db.select(StationItem).where(StationItem.station_id == sid, StationItem.item_id == iid)).first()
+    if si is None:
+        si = StationItem(station_id=sid, item_id=iid, checked=checked_bool)
+        db.session.add(si)
+    else:
+        si.checked = checked_bool
+    db.session.commit()
+    return {'ok': True}
+
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
-    app.run(debug=True)
+    app.run(debug=False)

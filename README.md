@@ -24,7 +24,7 @@ Stations are shown in mileage order as a timeline across the top of the page, gi
 The runner view shows the selected station and three supply categories:
 * Food
 * Liquids
-* Hygiene items
+* Other items
 Each category contains a checklist of available items. The runner selects an item by ticking its checkbox.
 
 A selection is connected to one specific station. For example, a runner may request soup and cola at Station 3, but only water and sunscreen at Station 4.

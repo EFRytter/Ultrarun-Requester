@@ -5,7 +5,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    {% with messages = get_flashed_messages() %}
+        <!--
+        Base template for all pages.
+
+        Purpose: Provides the HTML skeleton and links the main stylesheet.
+        It also renders any Flask flash messages and exposes a `content`
+        block that child templates fill in.
+
+        Sections:
+        - Flash messages: short notifications shown at the top of the page
+            (e.g. 'Account created', 'Incorrect username').
+        - `{% block content %}`: the main page content supplied by each
+            specific template (home, profile, station, etc.).
+        -->
+        {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
                 <p class="flash-message">{{ message }}</p>

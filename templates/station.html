@@ -11,7 +11,11 @@
         {% if food and food|length > 0 %}
             <ul>
             {% for item in food %}
-                <li>{{ item }}</li>
+                <li>
+                    <strong>{{ item.name }}</strong>
+                    {% if item.image_filename %}<img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">{% endif %}
+                    {% if item.carbs %}<span style="margin-left:6px;">Carb: {{ item.carbs }}</span>{% endif %}
+                </li>
             {% endfor %}
             </ul>
         {% else %}
@@ -24,7 +28,11 @@
         {% if liquids and liquids|length > 0 %}
             <ul>
             {% for item in liquids %}
-                <li>{{ item }}</li>
+                <li>
+                    <strong>{{ item.name }}</strong>
+                    {% if item.image_filename %}<img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">{% endif %}
+                    {% if item.carbs %}<span style="margin-left:6px;">Carb: {{ item.carbs }}</span>{% endif %}
+                </li>
             {% endfor %}
             </ul>
         {% else %}
@@ -33,15 +41,19 @@
     </section>
 
     <section style="flex:1; border:1px solid #ddd; padding:10px;">
-        <h4>Hygiene</h4>
-        {% if hygiene and hygiene|length > 0 %}
+        <h4>Other</h4>
+        {% if other and other|length > 0 %}
             <ul>
-            {% for item in hygiene %}
-                <li>{{ item }}</li>
+            {% for item in other %}
+                <li>
+                    <strong>{{ item.name }}</strong>
+                    {% if item.image_filename %}<img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb" style="margin:0 8px; vertical-align:middle; width:48px; height:48px; object-fit:cover; border-radius:6px;">{% endif %}
+                    {% if item.carbs %}<span style="margin-left:6px;">Carb: {{ item.carbs }}</span>{% endif %}
+                </li>
             {% endfor %}
             </ul>
         {% else %}
-            <p>No hygiene items yet.</p>
+            <p>No items yet.</p>
         {% endif %}
     </section>
 </div>

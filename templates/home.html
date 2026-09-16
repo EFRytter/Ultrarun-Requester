@@ -3,17 +3,17 @@
 <a class="tilbage" href="{{ url_for('profile') }}">&larr;</a>
 
 {% if stations and stations|length > 0 %}
-    <div class="timeline-wrapper">
+    <div class="timeline-wrapper" id="timeline" data-run-id="{{ run.id }}">
         <div class="timeline">
             {% set total = stations|length - 1 %}
             {% for s in stations %}
                 {% if total > 0 %}
-                    {% set left = (loop.index0 * 100.0) / total %}
+                    {% set left = 5.0 + (loop.index0 * 90.0) / total %}
                 {% else %}
                     {% set left = 50.0 %}
                 {% endif %}
-            <div class="timeline-item" style="left: {{ '%.2f'|format(left) }}%">
-                <a href="{{ url_for('station_detail', run_id=run.id, station_id=s.id) }}" class="dot-link">
+            <div class="timeline-item" style="--left: {{ left|round(2) }}; left: calc(var(--left) * 1%);">
+                <a href="{{ url_for('station_detail', run_id=run.id, station_id=s.id) }}" class="dot-link" data-station-id="{{ s.id }}">
                     <span class="dot"></span>
                 </a>
                 <div class="station-label">{{ s.name }} <br>({{ '%.1f'|format(s.distance) }} km)</div>
@@ -28,42 +28,292 @@
 <div style="display:flex;gap:20px;margin-top:20px;">
     <section style="flex:1; border:1px solid #ddd; padding:10px;">
         <h4>Food</h4>
-        {% if food and food|length > 0 %}
-            <ul>
-            {% for item in food %}
-                <li>{{ item }}</li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>No food items yet.</p>
-        {% endif %}
+        <ul id="food-list">
+            {% if food and food|length > 0 %}
+                {% for item in food %}
+                    <label class="item-label">
+                        <input type="checkbox" checked data-item-id="{{ item.id }}">
+                        <span class="item-name">{{ item.name }}</span>
+                        {% if item.image_filename %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
+                        {% endif %}
+                        {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
+                    </label>
+                {% endfor %}
+            {% endif %}
+        </ul>
+        <p class="no-items" id="food-empty" style="display: none;">No food items yet.</p>
+        <div style="margin-top:10px;"><button type="button" class="open-add-item" data-cat="food">Add Food</button></div>
     </section>
 
     <section style="flex:1; border:1px solid #ddd; padding:10px;">
         <h4>Liquids</h4>
-        {% if liquids and liquids|length > 0 %}
-            <ul>
-            {% for item in liquids %}
-                <li>{{ item }}</li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>No liquids yet.</p>
-        {% endif %}
+        <ul id="liquids-list">
+            {% if liquids and liquids|length > 0 %}
+                {% for item in liquids %}
+                    <label class="item-label">
+                        <input type="checkbox" checked data-item-id="{{ item.id }}">
+                        <span class="item-name">{{ item.name }}</span>
+                        {% if item.image_filename %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
+                        {% endif %}
+                        {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
+                    </label>
+                {% endfor %}
+            {% endif %}
+        </ul>
+        <p class="no-items" id="liquids-empty" style="display: none;">No liquids yet.</p>
+        <div style="margin-top:10px;"><button type="button" class="open-add-item" data-cat="liquids">Add Liquid</button></div>
     </section>
 
     <section style="flex:1; border:1px solid #ddd; padding:10px;">
-        <h4>Hygiene</h4>
-        {% if hygiene and hygiene|length > 0 %}
-            <ul>
-            {% for item in hygiene %}
-                <li>{{ item }}</li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>No hygiene items yet.</p>
-        {% endif %}
+        <h4>Other</h4>
+        <ul id="other-list">
+            {% if other and other|length > 0 %}
+                {% for item in other %}
+                    <label class="item-label">
+                        <input type="checkbox" checked data-item-id="{{ item.id }}">
+                        <span class="item-name">{{ item.name }}</span>
+                        {% if item.image_filename %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ item.image_filename) }}" class="item-thumb">
+                        {% endif %}
+                        {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
+                    </label>
+                {% endfor %}
+            {% endif %}
+        </ul>
+        <p class="no-items" id="other-empty" style="display: none;">No items yet.</p>
+        <div style="margin-top:10px;"><button type="button" class="open-add-item" data-cat="other">Add Other</button></div>
     </section>
 </div>
+
+<!-- Modal / Add item popup -->
+<div id="addItemModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:50;">
+    <div class="modal-content" style="background:white; max-width:520px; margin:80px auto; padding:20px; border-radius:8px; position:relative;">
+        <button id="modalClose" aria-label="Close" style="position:absolute; right:-14px; top:-14px; width:36px; height:36px; border-radius:18px; background:#fff; border:2px solid #4da64a; color:#4da64a; font-size:18px; line-height:28px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.15);">✕</button>
+        <form id="addItemForm" style="padding-top:12px;">
+            <input type="hidden" name="category" id="formCategory">
+            <div style="margin-bottom:8px;"><label>Name: <input type="text" id="itemName" required></label></div>
+            <div style="margin-bottom:8px;"><label>Picture: <input type="file" id="itemImage" accept="image/*"></label></div>
+            <div id="nutrients"></div>
+            <div style="margin-top:12px;"><button type="submit">Save item</button></div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* selected dot style */
+.timeline-item.selected .dot { background: #4d8e1f; }
+.timeline-item.selected .station-label { font-weight:700; }
+.modal .modal-content input[type=file] { display:block; }
+
+/* make category lists show bullets and position checkbox after the marker */
+#food-list, #liquids-list, #other-list { list-style: disc; margin-left: 1.4em; padding-left: 0.6em; }
+#food-list li, #liquids-list li, #other-list li { margin: 8px 0; }
+.item-label { display: inline-flex; align-items: center; gap: 8px; }
+.item-label input[type=checkbox] { margin-left: 4px; margin-right:4px; }
+.item-thumb { width:48px; height:48px; object-fit:cover; border-radius:6px; vertical-align:middle; }
+.item-carbs { margin-left:6px; font-size:0.95em; color:#333; }
+</style>
+
+<script>
+// Modal and add-item logic
+(() => {
+    const modal = document.getElementById('addItemModal');
+    const modalClose = document.getElementById('modalClose');
+    const catBtns = document.querySelectorAll('.cat-btn');
+    const formCategory = document.getElementById('formCategory');
+    const nutrients = document.getElementById('nutrients');
+    const addItemForm = document.getElementById('addItemForm');
+    let activeStationId = null;
+
+    // clicking a timeline dot should NOT navigate — just select the station (dark dot + bold label)
+    async function loadStationItems(stationId) {
+        if (!stationId) return;
+        try {
+            const res = await fetch('/api/items?station_id=' + stationId);
+            const json = await res.json();
+            const items = json.items || [];
+            // update checkboxes for each item
+            items.forEach(it => {
+                const selector = '[data-item-id="' + it.id + '"]';
+                const checkbox = document.querySelector(selector);
+                if (checkbox) {
+                    checkbox.checked = !!it.checked;
+                } else {
+                    // item not present in DOM yet — append to appropriate list
+                    const ulId = it.category === 'food' ? 'food-list' : (it.category === 'liquids' ? 'liquids-list' : 'other-list');
+                    const ul = document.getElementById(ulId);
+                    if (ul) {
+                        const li = document.createElement('li');
+                        const label = document.createElement('label'); label.className = 'item-label';
+                        const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!it.checked; cb.setAttribute('data-item-id', it.id);
+                        const nameSpan = document.createElement('span'); nameSpan.className = 'item-name'; nameSpan.textContent = it.name;
+                        label.appendChild(cb);
+                        label.appendChild(nameSpan);
+                        if (it.image_filename) {
+                            const img = document.createElement('img'); img.src = '/static/uploads/' + it.image_filename; img.className = 'item-thumb';
+                            label.appendChild(img);
+                        }
+                        if (it.carbs) {
+                            const carbsSpan = document.createElement('span'); carbsSpan.className = 'item-carbs'; carbsSpan.textContent = 'Carb: ' + it.carbs;
+                            label.appendChild(carbsSpan);
+                        }
+                        li.appendChild(label);
+                        ul.appendChild(li);
+                    }
+                }
+            });
+            bindCheckboxListeners();
+        } catch (err) {
+            console.error('Failed to load station items', err);
+        }
+    }
+
+    document.querySelectorAll('.dot-link').forEach(anchor => {
+        anchor.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.timeline-item').forEach(it => it.classList.remove('selected'));
+            const parent = e.currentTarget.closest('.timeline-item');
+            parent.classList.add('selected');
+            activeStationId = e.currentTarget.dataset.stationId;
+            loadStationItems(activeStationId);
+        });
+    });
+
+    modalClose.addEventListener('click', () => modal.style.display = 'none');
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+
+    // category buttons were removed — `catBtns` may be empty; keep safe
+    catBtns.forEach(b => b.addEventListener('click', (e)=>{
+        const cat = e.currentTarget.dataset.cat;
+        formCategory.value = cat;
+        const nameSpan = document.getElementById('modalCategoryName');
+        if (nameSpan) nameSpan.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+        // show nutrient inputs depending on category
+            if (cat === 'food' || cat === 'liquids') {
+                nutrients.innerHTML = `\n                <div><label>Carbs: <input type=\"number\" id=\"carbs\" step=\"any\"></label></div>`;
+        } else {
+            nutrients.innerHTML = '';
+        }
+    }));
+
+    // add-buttons under each list open the modal with the category pre-selected
+    document.querySelectorAll('.open-add-item').forEach(b => b.addEventListener('click', (e) => {
+        const cat = e.currentTarget.dataset.cat;
+        formCategory.value = cat;
+        const nameSpan = document.getElementById('modalCategoryName');
+        if (nameSpan) nameSpan.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+        // prime nutrient inputs (category-specific)
+        if (cat === 'food' || cat === 'liquids') {
+                nutrients.innerHTML = `\n                <div><label>Carbs: <input type=\"number\" id=\"carbs\" step=\"any\"></label></div>`;
+        } else {
+            nutrients.innerHTML = '';
+        }
+        document.getElementById('itemName').value = '';
+        document.getElementById('itemImage').value = '';
+        modal.style.display = 'block';
+    }));
+
+    // bind checkbox change listeners to persist per-station checks
+    function bindCheckboxListeners(){
+        document.querySelectorAll('input[data-item-id]').forEach(cb => {
+            if (cb._bound) return;
+            cb.addEventListener('change', async (e) => {
+                const itemId = e.currentTarget.getAttribute('data-item-id');
+                const checked = e.currentTarget.checked;
+                const sid = activeStationId;
+                if (!sid) return alert('Select a station first');
+                try {
+                    await fetch('/api/station_item', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({station_id: sid, item_id: itemId, checked: checked}) });
+                } catch (err) {
+                    console.error('Failed to save station item', err);
+                }
+            });
+            cb._bound = true;
+        });
+    }
+
+    addItemForm.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const cat = formCategory.value || 'other';
+        const name = document.getElementById('itemName').value.trim();
+        if (!name) return alert('Please enter a name');
+
+        const fd = new FormData();
+        fd.append('name', name);
+        fd.append('category', cat);
+        const carbsEl = document.getElementById('carbs');
+        if (carbsEl && carbsEl.value) fd.append('carbs', carbsEl.value);
+        const fileInput = document.getElementById('itemImage');
+        if (fileInput && fileInput.files && fileInput.files[0]) fd.append('image', fileInput.files[0]);
+
+        try {
+            // include run id so server creates StationItem entries for this run's stations
+            const runId = document.getElementById('timeline') && document.getElementById('timeline').dataset.runId;
+            if (runId) fd.append('run_id', runId);
+            const res = await fetch('/api/items', { method: 'POST', body: fd });
+            if (!res.ok) {
+                const err = await res.json().catch(()=>({}));
+                return alert('Failed to save item: ' + (err.error || res.status));
+            }
+            const data = await res.json();
+
+            // append returned item to list
+            const li = document.createElement('li');
+            const label = document.createElement('label'); label.className = 'item-label';
+            const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = true; cb.setAttribute('data-item-id', data.id);
+            const nameSpan = document.createElement('span'); nameSpan.className = 'item-name'; nameSpan.textContent = data.name;
+            label.appendChild(cb);
+            label.appendChild(nameSpan);
+            if (data.image_url) {
+                const img = document.createElement('img'); img.src = data.image_url; img.className = 'item-thumb';
+                label.appendChild(img);
+            }
+            if (data.carbs) {
+                const carbsSpan = document.createElement('span'); carbsSpan.className = 'item-carbs'; carbsSpan.textContent = 'Carb: ' + data.carbs;
+                label.appendChild(carbsSpan);
+            }
+            li.appendChild(label);
+
+            let targetId = 'other-list';
+            if (cat === 'food') targetId = 'food-list';
+            if (cat === 'liquids') targetId = 'liquids-list';
+
+            // append with item id data
+            document.querySelectorAll('#' + targetId).forEach(ul => {
+                const node = li.cloneNode(true);
+                const cb2 = node.querySelector('input[type=checkbox]');
+                if (cb2) cb2.setAttribute('data-item-id', data.id);
+                ul.appendChild(node);
+            });
+
+            bindCheckboxListeners();
+
+            // hide empty messages
+            ['food','liquids','other'].forEach(c => {
+                const ul = document.getElementById(c === 'other' ? 'other-list' : c + '-list');
+                const empty = document.getElementById((c === 'other' ? 'other-empty' : c + '-empty'));
+                if (ul && empty) empty.style.display = ul.children.length ? 'none' : 'block';
+            });
+
+            modal.style.display = 'none';
+        } catch (err) {
+            console.error(err);
+            alert('Error saving item');
+        }
+    });
+    // bind existing checkboxes
+    bindCheckboxListeners();
+
+    // select first station by default and load its item states
+    const firstDot = document.querySelector('.dot-link');
+    if (firstDot) {
+        const ev = new Event('click');
+        firstDot.dispatchEvent(ev);
+    }
+
+})();
+</script>
 
 {% endblock %}

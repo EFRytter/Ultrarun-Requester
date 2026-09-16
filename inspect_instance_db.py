@@ -1,4 +1,14 @@
+"""
+Inspect the `instance/team.sqlite3` database in the `instance/` folder.
+
+This mirrors `inspect_db.py` but targets the instance-local copy of the
+database (commonly used when Flask's instance folder is populated).
+It prints available tables and, if a `station` table exists, prints its
+schema and rows. Use this for quick local debugging of the instance DB.
+"""
+
 import sqlite3
+
 p='instance/team.sqlite3'
 conn=sqlite3.connect(p)
 cur=conn.cursor()
