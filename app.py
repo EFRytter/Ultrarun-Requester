@@ -502,6 +502,25 @@ def set_station_item_checked():
     return {'ok': True}
 
 
+@app.route('/api/items/<int:item_id>', methods=['DELETE'])
+def delete_item(item_id):
+    # Remove an item and any StationItem references
+    item = db.session.get(Item, item_id)
+    if item is None:
+        return {'error': 'item not found'}, 404
+
+    try:
+        sis = db.session.scalars(db.select(StationItem).where(StationItem.item_id == item_id)).all()
+        for si in sis:
+            db.session.delete(si)
+        db.session.delete(item)
+        db.session.commit()
+        return {'ok': True}
+    except Exception as e:
+        db.session.rollback()
+        return {'error': str(e)}, 500
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
