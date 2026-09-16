@@ -2,7 +2,6 @@
 
 Author: EFRytter 
 Project: Ultrarun-Requester
-License: MIT (choose a license you prefer and update this section)
 
 Overview
 --------
