@@ -386,7 +386,12 @@ def add_item():
 
     resp = item.as_dict()
     if image_filename:
-        resp['image_url'] = url_for('static', filename=f'uploads/{image_filename}')
+        # If we stored a full URL (from Vercel Blob), return it directly.
+        if isinstance(image_filename, str) and (image_filename.startswith('http://') or image_filename.startswith('https://')):
+            resp['image_url'] = image_filename
+        else:
+            # Fallback: legacy behavior for local filenames
+            resp['image_url'] = url_for('static', filename=f'uploads/{image_filename}')
 
     return resp, 201
 
