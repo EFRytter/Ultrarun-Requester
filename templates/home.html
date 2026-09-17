@@ -39,9 +39,8 @@
             </label>
         </div>
     </div>
-    <div class="station-content-separator" aria-hidden="true"></div>
     <div class="items-columns" style="display:flex; gap:20px; width:100%;">
-    <section class="category-section category-section--active" data-category="food" role="tabpanel" style="flex:1; border:1px solid #ddd; padding:10px;">
+    <section class="category-section category-section--active" data-category="food" role="tabpanel" style="flex:1; padding:10px;">
         <ul id="food-list">
             {% if food and food|length > 0 %}
                 {% for item in food %}
@@ -56,7 +55,7 @@
                             {% endif %}
                         {% endif %}
                         <button type="button" class="delete-btn" data-item-id="{{ item.id }}" title="Delete item">✕</button>
-                        {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
+                        {% if item.carbs %}<span class="item-carbs">Carbs: {{ item.carbs }}</span>{% endif %}
                     </label>
                 {% endfor %}
             {% endif %}
@@ -65,7 +64,7 @@
         <div style="margin-top:10px;"><button type="button" class="open-add-item" data-cat="food">Add Food</button></div>
     </section>
 
-    <section class="category-section" data-category="liquids" role="tabpanel" hidden style="flex:1; border:1px solid #ddd; padding:10px;">
+    <section class="category-section" data-category="liquids" role="tabpanel" hidden style="flex:1; padding:10px;">
         <ul id="liquids-list">
             {% if liquids and liquids|length > 0 %}
                 {% for item in liquids %}
@@ -80,7 +79,7 @@
                             {% endif %}
                         {% endif %}
                         <button type="button" class="delete-btn" data-item-id="{{ item.id }}" title="Delete item">✕</button>
-                        {% if item.carbs %}<span class="item-carbs">Carbs per 100g: {{ item.carbs }}</span>{% endif %}
+                        {% if item.carbs %}<span class="item-carbs">Carbs: {{ item.carbs }}</span>{% endif %}
                     </label>
                 {% endfor %}
             {% endif %}
@@ -89,7 +88,7 @@
         <div style="margin-top:10px;"><button type="button" class="open-add-item" data-cat="liquids">Add Liquid</button></div>
     </section>
 
-    <section class="category-section" data-category="other" role="tabpanel" hidden style="flex:1; border:1px solid #ddd; padding:10px;">
+    <section class="category-section" data-category="other" role="tabpanel" hidden style="flex:1; padding:10px;">
         <ul id="other-list">
             {% if other and other|length > 0 %}
                 {% for item in other %}
@@ -104,7 +103,7 @@
                             {% endif %}
                         {% endif %}
                         <button type="button" class="delete-btn" data-item-id="{{ item.id }}" title="Delete item">✕</button>
-                        {% if item.carbs %}<span class="item-carbs">Carb: {{ item.carbs }}</span>{% endif %}
+                        {% if item.carbs %}<span class="item-carbs">Carbs: {{ item.carbs }}</span>{% endif %}
                     </label>
                 {% endfor %}
             {% endif %}
@@ -133,7 +132,6 @@
 /* selected dot style */
 .timeline-item.selected .dot { background: #4d8e1f; }
 .timeline-item.selected .station-label { font-weight:700; }
-.timeline::before { display:none; }
 .modal .modal-content input[type=file] { display:block; }
 
 /* make category lists show bullets and position checkbox after the marker */
@@ -144,10 +142,14 @@
 .category-button { flex:1; margin-top:0; background-color:grey; cursor:pointer; }
 .category-button--active { background-color:rgb(79, 162, 79); }
 .category-section[hidden] { display:none; }
-.station-content-separator { border-top:1px solid #cccccc; margin:6px 0 12px; width:100%; }
+.category-section.category-section--active { display:flex; flex-direction:column; align-items:center; }
+.category-section.category-section--active ul { width:100%; max-width:680px; box-sizing:border-box; }
+.category-section.category-section--active .item-label { justify-content:center; }
+.category-section.category-section--active > div { width:100%; max-width:680px; }
+.category-section.category-section--active .no-items { text-align:center; }
 .item-label { display: inline-flex; align-items: center; gap: 8px; }
 .item-label input[type=checkbox] { margin-left: 4px; margin-right:4px; }
-.item-thumb { width:48px; height:48px; object-fit:cover; border-radius:6px; vertical-align:middle; }
+.item-thumb { width:60px; height:60px; object-fit:cover; border-radius:6px; vertical-align:middle; }
 .item-carbs { margin-left:6px; font-size:0.95em; color:#333; }
 
 /* delete button (hidden by default) */
@@ -230,7 +232,7 @@
                         }
                         if (it.carbs) {
                             const val = parseFloat(it.carbs);
-                            const text = (it.category === 'liquids') ? ('Carbs per 100g: ' + val.toFixed(1)) : ('Carb: ' + val.toFixed(1));
+                            const text = 'Carbs: ' + val.toFixed(1);
                             const carbsSpan = document.createElement('span'); carbsSpan.className = 'item-carbs'; carbsSpan.textContent = text;
                             label.appendChild(carbsSpan);
                         }
@@ -270,7 +272,7 @@
         if (nameSpan) nameSpan.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
         // show nutrient inputs depending on category
             if (cat === 'food' || cat === 'liquids') {
-                nutrients.innerHTML = `\n                <div><label>Carbs: <input type=\"number\" id=\"carbs\" step=\"any\"></label></div>`;
+                nutrients.innerHTML = `\n                <div><label>Carbs per 100g: <input type="number" id="carbs" step="any" placeholder="Enter amount of carbs per 100g"></label></div>`;
         } else {
             nutrients.innerHTML = '';
         }
@@ -284,7 +286,7 @@
         if (nameSpan) nameSpan.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
         // prime nutrient inputs (category-specific)
         if (cat === 'food' || cat === 'liquids') {
-                nutrients.innerHTML = `\n                <div><label>Carbs: <input type=\"number\" id=\"carbs\" step=\"any\"></label></div>`;
+                nutrients.innerHTML = `\n                <div><label>Carbs per 100g: <input type="number" id="carbs" step="any" placeholder="Enter amount of carbs per 100g"></label></div>`;
         } else {
             nutrients.innerHTML = '';
         }
@@ -351,7 +353,7 @@
             }
             if (data.carbs) {
                 const val = parseFloat(data.carbs);
-                const text = (cat === 'liquids') ? ('Carbs per 100g: ' + val.toFixed(1)) : ('Carb: ' + val.toFixed(1));
+                const text = 'Carbs: ' + val.toFixed(1);
                 const carbsSpan = document.createElement('span'); carbsSpan.className = 'item-carbs'; carbsSpan.textContent = text;
                 label.appendChild(carbsSpan);
             }
