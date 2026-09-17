@@ -149,11 +149,11 @@
 .category-section.category-section--active .item-label { width:100%; justify-content:flex-start; box-sizing:border-box; }
 .category-section.category-section--active > div { width:100%; max-width:800px; margin:0 auto; }
 .category-section.category-section--active .no-items { text-align:center; }
-.item-label { display:flex; width:100%; align-items:center; gap:8px; min-height:48px; padding:8px 0; box-sizing:border-box; }
-.item-label input[type=checkbox] { margin-left:4px; margin-right:4px; }
+.item-label { display:flex; width:100%; justify-content:flex-start; align-items:center; gap:8px; min-height:48px; padding:10px 0; box-sizing:border-box; }
+.item-label input[type=checkbox] { width:32px; height:32px; flex:0 0 auto; transform:scale(1.3); margin-left:4px; margin-right:12px; }
 .item-thumb { width:clamp(60px, 20vw, 100px); height:auto; object-fit:contain; border-radius:6px; vertical-align:middle; }
-.item-name { font-size:clamp(1rem, 2.5vw, 1.4rem); }
-.item-carbs { margin-left:6px; font-size:clamp(0.95rem, 2vw, 1.1rem); color:#333; }
+.item-name { font-size:clamp(1.2rem, 2.5vw, 1.5rem); }
+.item-carbs { margin-left:6px; font-size:clamp(1.2rem, 2vw, 1.35rem); color:#333; }
 
 /* delete button (hidden by default) */
 .delete-btn { display:none; background:#c62828; color:#fff; border:none; border-radius:4px; padding:2px 6px; margin-left:6px; cursor:pointer; font-weight:700; }
@@ -172,11 +172,11 @@
     .category-section { width:100%; max-width:100%; box-sizing:border-box; }
     .category-section.category-section--active ul,
     .category-section.category-section--active > div { width:100%; }
-    .item-label { display:flex; min-height:152px; padding:12px 0; font-size:clamp(1.1rem, 4vw, 1.35rem); line-height:1.3; }
-    .item-name { font-size:clamp(1.1rem, 4vw, 1.35rem); }
-    .item-carbs { font-size:clamp(1.05rem, 3vw, 1.2rem); }
-    .item-thumb { width:clamp(72px, 24vw, 112px); height:auto; }
-    .item-label input[type=checkbox] { width:32px; height:32px; flex:0 0 auto; }
+    .item-label { min-height:152px; padding:12px 0; font-size:clamp(1.4rem, 5vw, 1.6rem); line-height:1.3; }
+    .item-name { font-size:clamp(1.4rem, 5vw, 1.6rem); }
+    .item-carbs { font-size:clamp(1.3rem, 4vw, 1.5rem); }
+    .item-thumb { width:clamp(80px, 24vw, 100px); height:auto; }
+    .item-label input[type=checkbox] { width:32px; height:32px; transform:scale(1.3); margin-right:12px; }
 }
 </style>
 
