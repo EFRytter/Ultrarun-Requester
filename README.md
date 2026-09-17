@@ -46,7 +46,7 @@ Running tests and helpers
 Project layout
 --------------
 - `app.py` — Main Flask application, routes, and SQLAlchemy models.
-- `templates/` — Jinja2 templates for pages: `base.html`, `home.html`, `station.html`, `addevent.html`, `addstation.html`, `login.html`, `profile.html`, `register.html`.
+- `templates/` — Jinja2 templates for pages: `base.html`, `home.html`, `addevent.html`, `addstation.html`, `login.html`, `profile.html`, `register.html`.
 - `static/` — Static assets including `style.css`, `images/`, and uploaded item images under `static/uploads`.
 - `instance/` — Holds runtime instance files, including SQLite DB files.
 - `requirements.txt` — Python package dependencies for development and running the app.

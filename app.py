@@ -12,7 +12,7 @@ High-level overview for new readers:
     1. Configuration and database initialization (app, db)
     2. ORM models: `Team`, `Run`, `Station`, `Item`, `StationItem`
     3. Web routes: account/register/login/profile/add events and stations
-    4. Run/station views: `home(run_id)` and `station_detail(run_id, station_id)`
+    4. Run/station views: `home(run_id)`
     5. API endpoints: `/api/items` (GET/POST) and `/api/station_item` (POST)
 """
 
@@ -280,29 +280,6 @@ def add_station(run_id):
     db.session.add(new_station)
     db.session.commit()
     return redirect(url_for('home', run_id=run_id))
-
-
-# Station detail page showing items saved for that station
-@app.route('/home/<int:run_id>/station/<int:station_id>', methods=['GET'])
-def station_detail(run_id, station_id):
-    run = db.session.get(Run, run_id)
-    if run is None:
-        abort(404)
-    station = db.session.get(Station, station_id)
-    if station is None or station.run_id != run_id:
-        abort(404)
-
-    team_id = session.get('team_id')
-    if not team_id:
-        first_team = db.session.scalars(db.select(Team)).first()
-        team_id = first_team.id if first_team is not None else None
-
-    items = db.session.scalars(db.select(Item).where(Item.team_id == team_id)).all() if team_id is not None else []
-    food = [i for i in items if i.category == 'food']
-    liquids = [i for i in items if i.category == 'liquids']
-    other = [i for i in items if i.category == 'other']
-
-    return render_template('station.html', run=run, station=station, food=food, liquids=liquids, other=other)
 
 
 @app.route('/api/items', methods=['POST'])

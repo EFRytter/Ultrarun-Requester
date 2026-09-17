@@ -13,7 +13,7 @@
                     {% set left = 50.0 %}
                 {% endif %}
             <div class="timeline-item" style="--left: {{ left|round(2) }}; left: calc(var(--left) * 1%);">
-                <a href="{{ url_for('station_detail', run_id=run.id, station_id=s.id) }}" class="dot-link" data-station-id="{{ s.id }}">
+                <a href="#" class="dot-link" data-station-id="{{ s.id }}">
                     <span class="dot"></span>
                 </a>
                 <div class="station-label">{{ s.name }} <br>({{ '%.1f'|format(s.distance) }} km)</div>
