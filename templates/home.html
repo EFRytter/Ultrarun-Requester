@@ -26,6 +26,11 @@
 {% endif %}
 
 <div class="items-wrapper" style="margin-top:20px;">
+    <div class="category-buttons" role="tablist" aria-label="Item categories">
+        <button type="button" class="cat-btn category-button category-button--active" data-cat="food" role="tab" aria-selected="true">Food</button>
+        <button type="button" class="cat-btn category-button" data-cat="liquids" role="tab" aria-selected="false">Liquids</button>
+        <button type="button" class="cat-btn category-button" data-cat="other" role="tab" aria-selected="false">Other</button>
+    </div>
     <div class="items-toolbar" style="display:flex; justify-content:flex-end; margin-bottom:6px; width:100%;">
         <label class="delete-toggle" style="display:inline-flex; align-items:center; gap:8px; font-size:0.95em;">
             Delete mode
@@ -33,7 +38,7 @@
         </label>
     </div>
     <div class="items-columns" style="display:flex; gap:20px; width:100%;">
-    <section style="flex:1; border:1px solid #ddd; padding:10px;">
+    <section class="category-section category-section--active" data-category="food" role="tabpanel" style="flex:1; border:1px solid #ddd; padding:10px;">
         <h4>Food</h4>
         <ul id="food-list">
             {% if food and food|length > 0 %}
@@ -58,7 +63,7 @@
         <div style="margin-top:10px;"><button type="button" class="open-add-item" data-cat="food">Add Food</button></div>
     </section>
 
-    <section style="flex:1; border:1px solid #ddd; padding:10px;">
+    <section class="category-section" data-category="liquids" role="tabpanel" hidden style="flex:1; border:1px solid #ddd; padding:10px;">
         <h4>Liquids</h4>
         <ul id="liquids-list">
             {% if liquids and liquids|length > 0 %}
@@ -83,7 +88,7 @@
         <div style="margin-top:10px;"><button type="button" class="open-add-item" data-cat="liquids">Add Liquid</button></div>
     </section>
 
-    <section style="flex:1; border:1px solid #ddd; padding:10px;">
+    <section class="category-section" data-category="other" role="tabpanel" hidden style="flex:1; border:1px solid #ddd; padding:10px;">
         <h4>Other</h4>
         <ul id="other-list">
             {% if other and other|length > 0 %}
@@ -133,6 +138,10 @@
 /* make category lists show bullets and position checkbox after the marker */
 #food-list, #liquids-list, #other-list { list-style: disc; margin-left: 1.4em; padding-left: 0.6em; }
 #food-list li, #liquids-list li, #other-list li { margin: 8px 0; }
+.category-buttons { display:flex; gap:8px; margin-bottom:12px; }
+.category-button { flex:1; margin-top:0; background-color:grey; cursor:pointer; }
+.category-button--active { background-color:rgb(79, 162, 79); }
+.category-section[hidden] { display:none; }
 .item-label { display: inline-flex; align-items: center; gap: 8px; }
 .item-label input[type=checkbox] { margin-left: 4px; margin-right:4px; }
 .item-thumb { width:48px; height:48px; object-fit:cover; border-radius:6px; vertical-align:middle; }
@@ -142,6 +151,15 @@
 .delete-btn { display:none; background:#c62828; color:#fff; border:none; border-radius:4px; padding:2px 6px; margin-left:6px; cursor:pointer; font-weight:700; }
 .delete-mode .delete-btn { display:inline-block; }
 .delete-toggle input { cursor:pointer; }
+
+@media (max-width: 700px) {
+    .items-columns { display:block !important; }
+    .category-buttons { gap:6px; }
+    .category-button { min-height:46px; font-size:1rem; }
+    .category-section { width:100%; box-sizing:border-box; }
+    .item-label { display:flex; min-height:48px; font-size:1.05rem; }
+    .item-label input[type=checkbox] { width:24px; height:24px; flex:0 0 auto; }
+}
 </style>
 
 <script>
@@ -154,6 +172,21 @@
     const nutrients = document.getElementById('nutrients');
     const addItemForm = document.getElementById('addItemForm');
     let activeStationId = null;
+    let activeCategory = 'food';
+
+    function setActiveCategory(category) {
+        activeCategory = category;
+        document.querySelectorAll('.category-button').forEach(button => {
+            const isActive = button.dataset.cat === category;
+            button.classList.toggle('category-button--active', isActive);
+            button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        document.querySelectorAll('.category-section').forEach(section => {
+            const isActive = section.dataset.category === category;
+            section.hidden = !isActive;
+            section.classList.toggle('category-section--active', isActive);
+        });
+    }
 
     // clicking a timeline dot should NOT navigate — just select the station (dark dot + bold label)
     async function loadStationItems(stationId) {
@@ -222,9 +255,9 @@
     modalClose.addEventListener('click', () => modal.style.display = 'none');
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
 
-    // category buttons were removed — `catBtns` may be empty; keep safe
     catBtns.forEach(b => b.addEventListener('click', (e)=>{
         const cat = e.currentTarget.dataset.cat;
+        setActiveCategory(cat);
         formCategory.value = cat;
         const nameSpan = document.getElementById('modalCategoryName');
         if (nameSpan) nameSpan.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
