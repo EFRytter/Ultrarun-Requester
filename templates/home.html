@@ -25,21 +25,22 @@
     <p>No stations defined for this run yet.</p>
 {% endif %}
 
-<div class="items-wrapper" style="margin-top:20px;">
-    <div class="category-buttons" role="tablist" aria-label="Item categories">
-        <button type="button" class="cat-btn category-button category-button--active" data-cat="food" role="tab" aria-selected="true">Food</button>
-        <button type="button" class="cat-btn category-button" data-cat="liquids" role="tab" aria-selected="false">Liquids</button>
-        <button type="button" class="cat-btn category-button" data-cat="other" role="tab" aria-selected="false">Other</button>
-    </div>
-    <div class="items-toolbar" style="display:flex; justify-content:flex-end; margin-bottom:6px; width:100%;">
-        <label class="delete-toggle" style="display:inline-flex; align-items:center; gap:8px; font-size:0.95em;">
-            Delete mode
-            <input id="deleteModeToggle" type="checkbox" style="width:40px; height:20px;">
-        </label>
+<div class="items-wrapper" style="margin-top:12px;">
+    <div class="category-controls">
+        <div class="category-buttons" role="tablist" aria-label="Item categories">
+            <button type="button" class="cat-btn category-button category-button--active" data-cat="food" role="tab" aria-selected="true">Food</button>
+            <button type="button" class="cat-btn category-button" data-cat="liquids" role="tab" aria-selected="false">Liquids</button>
+            <button type="button" class="cat-btn category-button" data-cat="other" role="tab" aria-selected="false">Other</button>
+        </div>
+        <div class="items-toolbar">
+            <label class="delete-toggle">
+                Delete mode
+                <input id="deleteModeToggle" type="checkbox">
+            </label>
+        </div>
     </div>
     <div class="items-columns" style="display:flex; gap:20px; width:100%;">
     <section class="category-section category-section--active" data-category="food" role="tabpanel" style="flex:1; border:1px solid #ddd; padding:10px;">
-        <h4>Food</h4>
         <ul id="food-list">
             {% if food and food|length > 0 %}
                 {% for item in food %}
@@ -64,7 +65,6 @@
     </section>
 
     <section class="category-section" data-category="liquids" role="tabpanel" hidden style="flex:1; border:1px solid #ddd; padding:10px;">
-        <h4>Liquids</h4>
         <ul id="liquids-list">
             {% if liquids and liquids|length > 0 %}
                 {% for item in liquids %}
@@ -89,7 +89,6 @@
     </section>
 
     <section class="category-section" data-category="other" role="tabpanel" hidden style="flex:1; border:1px solid #ddd; padding:10px;">
-        <h4>Other</h4>
         <ul id="other-list">
             {% if other and other|length > 0 %}
                 {% for item in other %}
@@ -133,12 +132,14 @@
 /* selected dot style */
 .timeline-item.selected .dot { background: #4d8e1f; }
 .timeline-item.selected .station-label { font-weight:700; }
+.timeline::before { display:none; }
 .modal .modal-content input[type=file] { display:block; }
 
 /* make category lists show bullets and position checkbox after the marker */
 #food-list, #liquids-list, #other-list { list-style: disc; margin-left: 1.4em; padding-left: 0.6em; }
 #food-list li, #liquids-list li, #other-list li { margin: 8px 0; }
-.category-buttons { display:flex; gap:8px; margin-bottom:12px; }
+.category-controls { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.category-buttons { display:flex; flex:1; gap:8px; margin-bottom:0; }
 .category-button { flex:1; margin-top:0; background-color:grey; cursor:pointer; }
 .category-button--active { background-color:rgb(79, 162, 79); }
 .category-section[hidden] { display:none; }
@@ -150,12 +151,16 @@
 /* delete button (hidden by default) */
 .delete-btn { display:none; background:#c62828; color:#fff; border:none; border-radius:4px; padding:2px 6px; margin-left:6px; cursor:pointer; font-weight:700; }
 .delete-mode .delete-btn { display:inline-block; }
-.delete-toggle input { cursor:pointer; }
+.items-toolbar { flex:0 0 auto; }
+.delete-toggle { display:inline-flex; align-items:center; gap:8px; font-size:0.95em; white-space:nowrap; }
+.delete-toggle input { width:40px; height:20px; cursor:pointer; }
 
 @media (max-width: 700px) {
     .items-columns { display:block !important; }
+    .category-controls { align-items:stretch; flex-wrap:wrap; }
     .category-buttons { gap:6px; }
     .category-button { min-height:46px; font-size:1rem; }
+    .items-toolbar { margin-left:auto; }
     .category-section { width:100%; box-sizing:border-box; }
     .item-label { display:flex; min-height:48px; font-size:1.05rem; }
     .item-label input[type=checkbox] { width:24px; height:24px; flex:0 0 auto; }
