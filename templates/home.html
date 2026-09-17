@@ -141,15 +141,16 @@
 .category-buttons { display:flex; flex:1; gap:8px; margin-bottom:0; }
 .category-button { flex:1; margin-top:0; background-color:grey; cursor:pointer; }
 .category-button--active { background-color:rgb(79, 162, 79); }
+.items-columns { justify-content:center; }
 .category-section[hidden] { display:none; }
-.category-section.category-section--active { display:flex; flex-direction:column; align-items:center; }
-.category-section.category-section--active ul { width:100%; max-width:680px; box-sizing:border-box; }
+.category-section.category-section--active { flex:0 0 auto !important; display:flex; flex-direction:column; align-items:center; }
+.category-section.category-section--active ul { width:auto; max-width:680px; margin:0 auto; padding-left:0; list-style:none; box-sizing:border-box; }
 .category-section.category-section--active .item-label { justify-content:center; }
-.category-section.category-section--active > div { width:100%; max-width:680px; }
+.category-section.category-section--active > div { width:auto; max-width:680px; margin-left:auto; margin-right:auto; }
 .category-section.category-section--active .no-items { text-align:center; }
 .item-label { display: inline-flex; align-items: center; gap: 8px; }
 .item-label input[type=checkbox] { margin-left: 4px; margin-right:4px; }
-.item-thumb { width:60px; height:60px; object-fit:cover; border-radius:6px; vertical-align:middle; }
+.item-thumb { width:100px; height:100px; object-fit:cover; border-radius:6px; vertical-align:middle; }
 .item-carbs { margin-left:6px; font-size:0.95em; color:#333; }
 
 /* delete button (hidden by default) */
@@ -160,12 +161,14 @@
 .delete-toggle input { width:40px; height:20px; cursor:pointer; }
 
 @media (max-width: 700px) {
-    .items-columns { display:block !important; }
+    .items-columns { display:flex !important; justify-content:center; }
     .category-controls { align-items:stretch; flex-wrap:wrap; }
     .category-buttons { gap:6px; }
     .category-button { min-height:46px; font-size:1rem; }
     .items-toolbar { margin-left:auto; }
-    .category-section { width:100%; box-sizing:border-box; }
+    .category-section { width:100%; max-width:100%; box-sizing:border-box; }
+    .category-section.category-section--active ul,
+    .category-section.category-section--active > div { width:100%; }
     .item-label { display:flex; min-height:48px; font-size:1.05rem; }
     .item-label input[type=checkbox] { width:24px; height:24px; flex:0 0 auto; }
 }
