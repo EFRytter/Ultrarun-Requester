@@ -27,16 +27,16 @@
 
 <div class="items-wrapper" style="margin-top:12px;">
     <div class="category-controls">
-        <div class="category-buttons" role="tablist" aria-label="Item categories">
-            <button type="button" class="cat-btn category-button category-button--active" data-cat="food" role="tab" aria-selected="true">Food</button>
-            <button type="button" class="cat-btn category-button" data-cat="liquids" role="tab" aria-selected="false">Liquids</button>
-            <button type="button" class="cat-btn category-button" data-cat="other" role="tab" aria-selected="false">Other</button>
-        </div>
         <div class="items-toolbar">
             <label class="delete-toggle">
                 Delete mode
                 <input id="deleteModeToggle" type="checkbox">
             </label>
+        </div>
+        <div class="category-buttons" role="tablist" aria-label="Item categories">
+            <button type="button" class="cat-btn category-button category-button--active" data-cat="food" role="tab" aria-selected="true">Food</button>
+            <button type="button" class="cat-btn category-button" data-cat="liquids" role="tab" aria-selected="false">Liquids</button>
+            <button type="button" class="cat-btn category-button" data-cat="other" role="tab" aria-selected="false">Other</button>
         </div>
     </div>
     <div class="items-columns" style="display:flex; gap:20px; width:100%;">
@@ -137,42 +137,45 @@
 /* make category lists show bullets and position checkbox after the marker */
 #food-list, #liquids-list, #other-list { list-style:none; margin:0 auto; padding:0; display:flex; flex-direction:column; align-items:stretch; }
 #food-list li, #liquids-list li, #other-list li { margin: 8px 0; }
-.category-controls { display:flex; width:90%; max-width:800px; box-sizing:border-box; align-items:center; gap:12px; margin:0 auto; margin-bottom:12px; }
-.category-buttons { display:flex; flex:1; max-width:none; gap:8px; margin-bottom:0; }
-.category-button { flex:1; margin-top:0; background-color:grey; cursor:pointer; }
+.category-controls { display:flex; flex-direction:column; width:90%; max-width:800px; box-sizing:border-box; gap:8px; margin:0 auto 12px; }
+.category-buttons { display:flex; width:100%; gap:8px; margin-bottom:0; }
+.category-button { flex:1; margin-top:0; background-color:grey; cursor:pointer; font-size:clamp(0.95rem, 2vw, 1.15rem); }
 .category-button--active { background-color:rgb(79, 162, 79); }
 .timeline::before { left:10%; right:10%; }
 .items-columns { justify-content:center; }
 .category-section[hidden] { display:none; }
-.category-section.category-section--active { flex:0 0 auto !important; width:100%; max-width:800px; display:flex; flex-direction:column; align-items:center; box-sizing:border-box; }
-.category-section.category-section--active ul { width:90%; max-width:800px; margin:0 auto; box-sizing:border-box; }
+.category-section.category-section--active { flex:0 0 auto !important; width:90%; max-width:800px; display:flex; flex-direction:column; align-items:center; box-sizing:border-box; }
+.category-section.category-section--active ul { width:100%; max-width:800px; margin:0 auto; box-sizing:border-box; }
 .category-section.category-section--active .item-label { width:100%; justify-content:flex-start; box-sizing:border-box; }
-.category-section.category-section--active > div { width:90%; max-width:800px; margin:0 auto; }
+.category-section.category-section--active > div { width:100%; max-width:800px; margin:0 auto; }
 .category-section.category-section--active .no-items { text-align:center; }
-.item-label { display:flex; align-items:center; gap:8px; min-height:48px; }
+.item-label { display:flex; width:100%; align-items:center; gap:8px; min-height:48px; padding:8px 0; box-sizing:border-box; }
 .item-label input[type=checkbox] { margin-left:4px; margin-right:4px; }
-.item-thumb { width:100px; height:100px; object-fit:cover; border-radius:6px; vertical-align:middle; }
-.item-carbs { margin-left:6px; font-size:0.95em; color:#333; }
+.item-thumb { width:clamp(60px, 20vw, 100px); height:auto; object-fit:contain; border-radius:6px; vertical-align:middle; }
+.item-name { font-size:clamp(1rem, 2.5vw, 1.4rem); }
+.item-carbs { margin-left:6px; font-size:clamp(0.95rem, 2vw, 1.1rem); color:#333; }
 
 /* delete button (hidden by default) */
 .delete-btn { display:none; background:#c62828; color:#fff; border:none; border-radius:4px; padding:2px 6px; margin-left:6px; cursor:pointer; font-weight:700; }
 .delete-mode .delete-btn { display:inline-block; }
 .items-toolbar { flex:0 0 auto; }
-.delete-toggle { display:inline-flex; align-items:center; gap:8px; font-size:0.95em; white-space:nowrap; }
+.items-toolbar { align-self:flex-end; }
+.delete-toggle { display:inline-flex; align-items:center; gap:8px; font-size:clamp(0.9rem, 1.8vw, 1rem); white-space:nowrap; }
 .delete-toggle input { width:40px; height:20px; cursor:pointer; }
 
 @media (max-width: 700px) {
     .items-columns { display:flex !important; justify-content:center; }
-    .category-controls { width:90%; align-items:stretch; flex-wrap:wrap; }
-    .category-buttons { max-width:none; gap:6px; }
-    .category-button { min-height:46px; font-size:1rem; }
-    .items-toolbar { margin-left:auto; }
+    .category-controls { width:90%; align-items:stretch; }
+    .category-buttons { gap:6px; }
+    .category-button { min-height:46px; }
+    .items-toolbar { align-self:flex-end; }
     .category-section { width:100%; max-width:100%; box-sizing:border-box; }
     .category-section.category-section--active ul,
-    .category-section.category-section--active > div { width:90%; }
-    .item-label { display:flex; min-height:152px; padding:12px 0; font-size:1.2rem; line-height:1.3; }
-    .item-name { font-size:1.2rem; }
-    .item-thumb { width:128px; height:128px; }
+    .category-section.category-section--active > div { width:100%; }
+    .item-label { display:flex; min-height:152px; padding:12px 0; font-size:clamp(1.1rem, 4vw, 1.35rem); line-height:1.3; }
+    .item-name { font-size:clamp(1.1rem, 4vw, 1.35rem); }
+    .item-carbs { font-size:clamp(1.05rem, 3vw, 1.2rem); }
+    .item-thumb { width:clamp(72px, 24vw, 112px); height:auto; }
     .item-label input[type=checkbox] { width:32px; height:32px; flex:0 0 auto; }
 }
 </style>
