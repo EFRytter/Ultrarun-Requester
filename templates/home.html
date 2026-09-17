@@ -55,7 +55,7 @@
                             {% endif %}
                         {% endif %}
                         <button type="button" class="delete-btn" data-item-id="{{ item.id }}" title="Delete item">✕</button>
-                        {% if item.carbs %}<span class="item-carbs">Carbs: {{ item.carbs }}</span>{% endif %}
+                        {% if item.carbs %}<span class="item-carbs">Carbs: {{ item.carbs }} g (per 100g)</span>{% endif %}
                     </label>
                 {% endfor %}
             {% endif %}
@@ -79,7 +79,7 @@
                             {% endif %}
                         {% endif %}
                         <button type="button" class="delete-btn" data-item-id="{{ item.id }}" title="Delete item">✕</button>
-                        {% if item.carbs %}<span class="item-carbs">Carbs: {{ item.carbs }}</span>{% endif %}
+                        {% if item.carbs %}<span class="item-carbs">Carbs: {{ item.carbs }} g (per 100 ml)</span>{% endif %}
                     </label>
                 {% endfor %}
             {% endif %}
@@ -103,7 +103,7 @@
                             {% endif %}
                         {% endif %}
                         <button type="button" class="delete-btn" data-item-id="{{ item.id }}" title="Delete item">✕</button>
-                        {% if item.carbs %}<span class="item-carbs">Carbs: {{ item.carbs }}</span>{% endif %}
+                        {% if item.carbs %}<span class="item-carbs">Carbs: {{ item.carbs }} g</span>{% endif %}
                     </label>
                 {% endfor %}
             {% endif %}
@@ -135,7 +135,7 @@
 .modal .modal-content input[type=file] { display:block; }
 
 /* make category lists show bullets and position checkbox after the marker */
-#food-list, #liquids-list, #other-list { list-style: disc; margin-left: 1.4em; padding-left: 0.6em; }
+#food-list, #liquids-list, #other-list { list-style:none; margin:0 auto; padding:0; display:flex; flex-direction:column; align-items:stretch; }
 #food-list li, #liquids-list li, #other-list li { margin: 8px 0; }
 .category-controls { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
 .category-buttons { display:flex; flex:1; gap:8px; margin-bottom:0; }
@@ -144,11 +144,11 @@
 .items-columns { justify-content:center; }
 .category-section[hidden] { display:none; }
 .category-section.category-section--active { flex:0 0 auto !important; display:flex; flex-direction:column; align-items:center; }
-.category-section.category-section--active ul { width:auto; max-width:680px; margin:0 auto; padding-left:0; list-style:none; box-sizing:border-box; }
-.category-section.category-section--active .item-label { justify-content:center; }
+.category-section.category-section--active ul { width:min(680px, 100%); max-width:680px; margin:0 auto; box-sizing:border-box; }
+.category-section.category-section--active .item-label { width:100%; justify-content:flex-start; box-sizing:border-box; }
 .category-section.category-section--active > div { width:auto; max-width:680px; margin-left:auto; margin-right:auto; }
 .category-section.category-section--active .no-items { text-align:center; }
-.item-label { display: inline-flex; align-items: center; gap: 8px; }
+.item-label { display:flex; align-items:center; gap:8px; min-height:48px; }
 .item-label input[type=checkbox] { margin-left: 4px; margin-right:4px; }
 .item-thumb { width:100px; height:100px; object-fit:cover; border-radius:6px; vertical-align:middle; }
 .item-carbs { margin-left:6px; font-size:0.95em; color:#333; }
@@ -235,7 +235,8 @@
                         }
                         if (it.carbs) {
                             const val = parseFloat(it.carbs);
-                            const text = 'Carbs: ' + val.toFixed(1);
+                            const unit = it.category === 'liquids' ? ' (per 100 ml)' : (it.category === 'food' ? ' (per 100g)' : '');
+                            const text = 'Carbs: ' + val.toFixed(1) + ' g' + unit;
                             const carbsSpan = document.createElement('span'); carbsSpan.className = 'item-carbs'; carbsSpan.textContent = text;
                             label.appendChild(carbsSpan);
                         }
@@ -275,7 +276,8 @@
         if (nameSpan) nameSpan.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
         // show nutrient inputs depending on category
             if (cat === 'food' || cat === 'liquids') {
-                nutrients.innerHTML = `\n                <div><label>Carbs per 100g: <input type="number" id="carbs" step="any" placeholder="Enter amount of carbs per 100g"></label></div>`;
+                const unitLabel = cat === 'liquids' ? '100 ml' : '100g';
+                nutrients.innerHTML = `\n                <div><label>Carbs per ${unitLabel}: <input type="number" id="carbs" step="any" placeholder="Enter amount of carbs per ${unitLabel}"></label></div>`;
         } else {
             nutrients.innerHTML = '';
         }
@@ -289,7 +291,8 @@
         if (nameSpan) nameSpan.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
         // prime nutrient inputs (category-specific)
         if (cat === 'food' || cat === 'liquids') {
-                nutrients.innerHTML = `\n                <div><label>Carbs per 100g: <input type="number" id="carbs" step="any" placeholder="Enter amount of carbs per 100g"></label></div>`;
+            const unitLabel = cat === 'liquids' ? '100 ml' : '100g';
+            nutrients.innerHTML = `\n                <div><label>Carbs per ${unitLabel}: <input type="number" id="carbs" step="any" placeholder="Enter amount of carbs per ${unitLabel}"></label></div>`;
         } else {
             nutrients.innerHTML = '';
         }
@@ -356,7 +359,8 @@
             }
             if (data.carbs) {
                 const val = parseFloat(data.carbs);
-                const text = 'Carbs: ' + val.toFixed(1);
+                const unit = cat === 'liquids' ? ' (per 100 ml)' : (cat === 'food' ? ' (per 100g)' : '');
+                const text = 'Carbs: ' + val.toFixed(1) + ' g' + unit;
                 const carbsSpan = document.createElement('span'); carbsSpan.className = 'item-carbs'; carbsSpan.textContent = text;
                 label.appendChild(carbsSpan);
             }
